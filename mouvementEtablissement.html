@@ -92,7 +92,7 @@
     }
 
     function chargerTypesMouvement() {
-      ajax("GET", "/types_mouvement", null, (data) => {
+      ajax("GET", "/mouvements", null, (data) => {
         const select = document.getElementById("id_type");
         select.innerHTML = '<option value="">Sélectionner un type de mouvement</option>';
         if (data && data.length > 0) {
