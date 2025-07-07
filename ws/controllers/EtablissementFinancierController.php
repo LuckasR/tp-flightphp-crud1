@@ -23,28 +23,28 @@ class EtablissementFinancierController {
         Flight::json(['message' => 'Etablissement créé', 'id' => $id]);
     }
 
-public static function update($id) {
-    // Récupérer les données PUT
-    parse_str(file_get_contents("php://input"), $put_vars);
+    public static function update($id) {
+        // Récupérer les données PUT
+        parse_str(file_get_contents("php://input"), $put_vars);
 
-    // $put_vars est un tableau associatif
-    // Exemple d’accès : $put_vars['nom']
+        // $put_vars est un tableau associatif
+        // Exemple d’accès : $put_vars['nom']
 
-    $db = getDB();
+        $db = getDB();
 
-    $stmt = $db->prepare("UPDATE etablissementFinancier SET nom = ?, adresse = ?, telephone = ?, email = ?, curr_montant = ? WHERE id = ?");
+        $stmt = $db->prepare("UPDATE etablissementFinancier SET nom = ?, adresse = ?, telephone = ?, email = ?, curr_montant = ? WHERE id = ?");
+        
+        $stmt->execute([
+            $put_vars['nom'] ?? null,
+            $put_vars['adresse'] ?? null,
+            $put_vars['telephone'] ?? null,
+            $put_vars['email'] ?? null,
+            $put_vars['curr_montant'] ?? 0,
+            $id
+        ]);
     
-    $stmt->execute([
-        $put_vars['nom'] ?? null,
-        $put_vars['adresse'] ?? null,
-        $put_vars['telephone'] ?? null,
-        $put_vars['email'] ?? null,
-        $put_vars['curr_montant'] ?? 0,
-        $id
-    ]);
-    
-    Flight::json(['message' => 'Mise à jour réussie']);
-}
+        Flight::json(['message' => 'Mise à jour réussie']);
+    }
 
     public static function delete($id) {
         EtablissementFinancier::delete($id);
