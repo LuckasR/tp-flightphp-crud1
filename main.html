@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion des établissements financiers</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, button { margin: 5px; padding: 5px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+
+  <h1>Gestion des établissements financiers</h1>
+
+  <div>
+    <input type="hidden" id="id">
+    <input type="text" id="nom" placeholder="Nom">
+    <input type="text" id="adresse" placeholder="Adresse">
+    <input type="text" id="telephone" placeholder="Téléphone">
+    <input type="email" id="email" placeholder="Email">
+    <input type="number" id="curr_montant" placeholder="Montant actuel">
+    <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
+  </div>
+
+  <table id="table-etablissements">
+    <thead>
+      <tr>
+        <th>ID</th><th>Nom</th><th>Adresse</th><th>Téléphone</th><th>Email</th><th>Montant</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const apiBase = "http://localhost/tp-flightphp-crud1/ws";
+
+    function ajax(method, url, data, callback) {
+      const xhr = new XMLHttpRequest();
+      xhr.open(method, apiBase + url, true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            callback(JSON.parse(xhr.responseText));
+          } else {
+            console.error("Erreur serveur :", xhr.responseText);
+          }
+        }
+      };
+      xhr.send(data);
+    }
+
+    function chargerEtablissements() {
+      ajax("GET", "/etablissements", null, (data) => {
+        const tbody = document.querySelector("#table-etablissements tbody");
+        tbody.innerHTML = "";
+        data.forEach(e => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${e.id}</td>
+            <td>${e.nom}</td>
+            <td>${e.adresse}</td>
+            <td>${e.telephone}</td>
+            <td>${e.email}</td>
+            <td>${e.curr_montant}</td>
+            <td>
+              <button onclick='remplirFormulaire(${JSON.stringify(e)})'>✏️</button>
+              <button onclick='supprimerEtablissement(${e.id})'>🗑️</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    function ajouterOuModifier() {
+      const id = document.getElementById("id").value;
+      const nom = document.getElementById("nom").value;
+      const adresse = document.getElementById("adresse").value;
+      const telephone = document.getElementById("telephone").value;
+      const email = document.getElementById("email").value;
+      const curr_montant = document.getElementById("curr_montant").value;
+
+      const data = `nom=${encodeURIComponent(nom)}&adresse=${encodeURIComponent(adresse)}&telephone=${encodeURIComponent(telephone)}&email=${encodeURIComponent(email)}&curr_montant=${curr_montant}`;
+
+      if (id) {
+        ajax("PUT", `/etablissements/${id}`, data, () => {
+          resetForm();
+          chargerEtablissements();
+        });
+      } else {
+        ajax("POST", "/etablissements", data, () => {
+          resetForm();
+          chargerEtablissements();
+        });
+      }
+    }
+
+    function remplirFormulaire(e) {
+      document.getElementById("id").value = e.id;
+      document.getElementById("nom").value = e.nom;
+      document.getElementById("adresse").value = e.adresse;
+      document.getElementById("telephone").value = e.telephone;
+      document.getElementById("email").value = e.email;
+      document.getElementById("curr_montant").value = e.curr_montant;
+    }
+
+    function supprimerEtablissement(id) {
+      if (confirm("Supprimer cet établissement ?")) {
+        ajax("DELETE", `/etablissements/${id}`, null, () => {
+          chargerEtablissements();
+        });
+      }
+    }
+
+    function resetForm() {
+      document.getElementById("id").value = "";
+      document.getElementById("nom").value = "";
+      document.getElementById("adresse").value = "";
+      document.getElementById("telephone").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("curr_montant").value = "";
+    }
+
+    chargerEtablissements();
+  </script>
+
+</body>
+</html>
