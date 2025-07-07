@@ -24,16 +24,9 @@ class EtablissementFinancierController {
     }
 
     public static function update($id) {
-        // Récupérer les données PUT
         parse_str(file_get_contents("php://input"), $put_vars);
-
-        // $put_vars est un tableau associatif
-        // Exemple d’accès : $put_vars['nom']
-
         $db = getDB();
-
         $stmt = $db->prepare("UPDATE etablissementFinancier SET nom = ?, adresse = ?, telephone = ?, email = ?, curr_montant = ? WHERE id = ?");
-        
         $stmt->execute([
             $put_vars['nom'] ?? null,
             $put_vars['adresse'] ?? null,
@@ -42,12 +35,24 @@ class EtablissementFinancierController {
             $put_vars['curr_montant'] ?? 0,
             $id
         ]);
-    
         Flight::json(['message' => 'Mise à jour réussie']);
     }
 
     public static function delete($id) {
         EtablissementFinancier::delete($id);
         Flight::json(['message' => 'Etablissement supprimé']);
+    }
+
+
+    public static function updateCurrMontant($id) {
+        try {
+            if (EtablissementFinancier::updateCurrMontant($id)) {
+                Flight::json(['message' => 'curr_montant mis à jour avec succès']);
+            } else {
+                Flight::halt(500, 'Erreur lors de la mise à jour de curr_montant');
+            }
+        } catch (Exception $e) {
+            Flight::halt(500, 'Erreur serveur: ' . $e->getMessage());
+        }
     }
 }
