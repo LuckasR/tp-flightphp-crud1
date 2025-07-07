@@ -47,6 +47,13 @@ CREATE TABLE type_categorie (
 );
 INSERT INTO type_categorie (type_name) VALUES ('depot'), ('retrait'), ('transfert');
 
+
+create sequence 
+numero_compte
+start with 1987544566 
+increment by 1 ;
+select  numero_compte.nextval()
+
 CREATE TABLE compte_bancaire (
     id INT AUTO_INCREMENT PRIMARY KEY,
     numero_compte VARCHAR(200),

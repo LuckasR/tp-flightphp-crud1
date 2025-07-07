@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion des Types de Prêt</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button, textarea { margin: 5px; padding: 8px; width: 200px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; }
+    th { background-color: #f4f4f4; }
+  </style>
+</head>
+<body>
+
+  <h1>Types de Prêt</h1>
+
+  <div>
+    <input type="hidden" id="id">
+    <input type="text" id="nom" placeholder="Nom">
+    <textarea id="description" placeholder="Description"></textarea>
+    <input type="number" id="revenu_minimum" placeholder="Revenu minimum">
+    <input type="number" id="age_minimum" placeholder="Âge minimum">
+    <input type="number" id="age_maximum" placeholder="Âge maximum">
+    <input type="number" id="montant_min" placeholder="Montant min">
+    <input type="number" id="montant_max" placeholder="Montant max">
+    <input type="number" id="duree_min" placeholder="Durée min (mois)">
+    <input type="number" id="duree_max" placeholder="Durée max (mois)">
+    <input type="number" id="taux_interet" placeholder="Taux intérêt %">
+    <input type="number" id="taux_interet_retard" placeholder="Taux retard %">
+    <input type="number" id="frais_dossier_fixe" placeholder="Frais dossier">
+    <textarea id="documents_requis" placeholder="Documents requis"></textarea>
+    <label><input type="checkbox" id="actif" checked> Actif</label>
+    <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
+  </div>
+
+  <table id="table-typeprets">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Montant</th>
+        <th>Durée</th>
+        <th>Taux</th>
+        <th>Actif</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const apiBase = "http://localhost/tp-flightphp-crud1/ws";
+
+    function ajax(method, url, data, callback) {
+      const xhr = new XMLHttpRequest();
+      xhr.open(method, apiBase + url, true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) callback(JSON.parse(xhr.responseText));
+          else alert("Erreur serveur : " + xhr.responseText);
+        }
+      };
+      xhr.send(data);
+    }
+
+    function chargerTypePrets() {
+      ajax("GET", "/typeprets", null, (data) => {
+        const tbody = document.querySelector("#table-typeprets tbody");
+        tbody.innerHTML = "";
+        data.forEach(tp => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${tp.nom}</td>
+            <td>${tp.montant_min} - ${tp.montant_max}</td>
+            <td>${tp.duree_min} - ${tp.duree_max} mois</td>
+            <td>${tp.taux_interet}%</td>
+            <td>${tp.actif ? '✅' : '❌'}</td>
+            <td>
+              <button onclick='remplir(${JSON.stringify(tp)})'>✏️</button>
+              <button onclick='supprimer(${tp.id})'>🗑️</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    function getDataFromForm() {
+      return `nom=${encodeURIComponent(nom.value)}&description=${encodeURIComponent(description.value)}&revenu_minimum=${revenu_minimum.value}&age_minimum=${age_minimum.value}&age_maximum=${age_maximum.value}&montant_min=${montant_min.value}&montant_max=${montant_max.value}&duree_min=${duree_min.value}&duree_max=${duree_max.value}&taux_interet=${taux_interet.value}&taux_interet_retard=${taux_interet_retard.value}&frais_dossier_fixe=${frais_dossier_fixe.value}&documents_requis=${encodeURIComponent(documents_requis.value)}&actif=${actif.checked ? 1 : 0}`;
+    }
+
+    function ajouterOuModifier() {
+      const id = document.getElementById("id").value;
+      const data = getDataFromForm();
+
+      if (id) {
+        ajax("PUT", `/typeprets/${id}`, data, () => {
+          resetForm(); chargerTypePrets();
+        });
+      } else {
+        ajax("POST", `/typeprets`, data, () => {
+          resetForm(); chargerTypePrets();
+        });
+      }
+    }
+
+    function remplir(tp) {
+      id.value = tp.id;
+      nom.value = tp.nom;
+      description.value = tp.description || "";
+      revenu_minimum.value = tp.revenu_minimum;
+      age_minimum.value = tp.age_minimum;
+      age_maximum.value = tp.age_maximum;
+      montant_min.value = tp.montant_min;
+      montant_max.value = tp.montant_max;
+      duree_min.value = tp.duree_min;
+      duree_max.value = tp.duree_max;
+      taux_interet.value = tp.taux_interet;
+      taux_interet_retard.value = tp.taux_interet_retard;
+      frais_dossier_fixe.value = tp.frais_dossier_fixe;
+      documents_requis.value = tp.documents_requis || "";
+      actif.checked = tp.actif;
+    }
+
+    function supprimer(id) {
+      if (confirm("Supprimer ce type de prêt ?")) {
+        ajax("DELETE", `/typeprets/${id}`, null, () => chargerTypePrets());
+      }
+    }
+
+    function resetForm() {
+      document.querySelectorAll("input, textarea").forEach(el => {
+        if (el.type === "checkbox") el.checked = true;
+        else el.value = "";
+      });
+    }
+
+    chargerTypePrets();
+  </script>
+
+</body>
+</html>
