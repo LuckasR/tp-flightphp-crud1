@@ -92,7 +92,7 @@
     }
 
     function chargerTypesMouvement() {
-      ajax("GET", "/types_mouvement", null, (data) => {
+      ajax("GET", "/mouvements", null, (data) => {
         const select = document.getElementById("id_type");
         select.innerHTML = '<option value="">Sélectionner un type de mouvement</option>';
         if (data && data.length > 0) {
@@ -110,6 +110,8 @@
         document.getElementById("error-message").textContent = "Erreur lors du chargement des types de mouvement.";
       });
     }
+
+   
 
     function chargerClients() {
       ajax("GET", "/clients", null, (data) => {
@@ -132,7 +134,7 @@
     }
 
     function chargerMouvements() {
-      ajax("GET", "/mouvements", null, (data) => {
+      ajax("GET", "/mouvementsEtablissement", null, (data) => {
         const tbody = document.querySelector("#table-mouvements tbody");
         tbody.innerHTML = "";
         data.forEach(m => {
@@ -175,14 +177,14 @@
       const data = `id_admin=${encodeURIComponent(id_admin)}&id_type=${encodeURIComponent(id_type)}&id_client=${encodeURIComponent(id_client)}&montant=${encodeURIComponent(montant)}&description=${encodeURIComponent(description)}&reference_externe=${encodeURIComponent(reference_externe)}`;
 
       if (id) {
-        ajax("PUT", `/mouvements/${id}`, data, () => {
+        ajax("PUT", `/mouvementsEtablissement/${id}`, data, () => {
           resetForm();
           chargerMouvements();
         }, (error) => {
           errorMessage.textContent = "Erreur lors de la mise à jour.";
         });
       } else {
-        ajax("POST", "/mouvements", data, () => {
+        ajax("POST", "/mouvementsETablissement", data, () => {
           resetForm();
           chargerMouvements();
         }, (error) => {
@@ -204,7 +206,7 @@
 
     function supprimerMouvement(id) {
       if (confirm("Supprimer ce mouvement d'établissement ?")) {
-        ajax("DELETE", `/mouvements/${id}`, null, () => {
+        ajax("DELETE", `/mouvementsEtablissement/${id}`, null, () => {
           chargerMouvements();
         }, (error) => {
           document.getElementById("error-message").textContent = "Erreur lors de la suppression.";

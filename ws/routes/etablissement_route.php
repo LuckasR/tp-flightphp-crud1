@@ -6,3 +6,5 @@ Flight::route('GET /etablissements/@id', ['EtablissementFinancierController', 'g
 Flight::route('POST /etablissements', ['EtablissementFinancierController', 'create']);
 Flight::route('PUT /etablissements/@id', ['EtablissementFinancierController', 'update']);
 Flight::route('DELETE /etablissements/@id', ['EtablissementFinancierController', 'delete']);
+Flight::route('PUT /etablissements/@id/curr_montant', ['EtablissementFinancierController', 'updateCurrMontant']);
+Flight::route('POST /etablissements/monthly_interest', ['EtablissementFinancierController', 'getMonthlyInterest']);
