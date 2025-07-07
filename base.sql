@@ -1,3 +1,5 @@
+CREATE DATABASE financier;
+USE financier;
 CREATE TABLE etablissementFinancier (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL UNIQUE,
