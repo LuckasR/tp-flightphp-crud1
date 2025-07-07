@@ -7,5 +7,7 @@ require_once __DIR__ . '/routes/etudiant_routes.php';
 require_once __DIR__ . '/routes/etablissement_route.php';
 require_once __DIR__ . '/routes/typeMouvement_route.php';
 require_once __DIR__ . '/routes/type_categorie_routes.php';
+require_once __DIR__ . '/routes/type_client_routes.php';
+require_once __DIR__ . '/routes/client_routes.php';
 // Démarrer Flight
 Flight::start();
