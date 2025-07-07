@@ -3,8 +3,8 @@ function getDB() {
     $host = 'localhost';
     $dbname = 'financier';
     $username = 'root';
-    $password = '';
-    $port = 3306;
+    $password = 'a';
+    $port = 3308;
 
     $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
 

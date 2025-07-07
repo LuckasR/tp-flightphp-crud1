@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion des Prêts</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { margin-bottom: 10px; }
+    section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+    label { display: block; margin-top: 10px; }
+    input, select, textarea { width: 100%; padding: 6px; margin-top: 3px; }
+    button { margin-top: 10px; padding: 8px 15px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+
+<h1>Gestion des Prêts</h1>
+
+<section>
+    
+  <input type="hidden" id="id">
+
+  <label>Numéro du prêt</label>
+  <input type="text" id="numero_pret" placeholder="Ex: PRT-2025-0001">
+
+  <label>Client</label>
+  <select id="id_client"></select>
+
+  <label>Type de prêt</label>
+  <select id="id_type_pret"></select>
+
+  <label>Administrateur créateur</label>
+  <select id="id_admin_createur"></select>
+
+  <label>Montant demandé</label>
+  <input type="number" id="montant_demande">
+
+  <label>Durée demandée (mois)</label>
+  <input type="number" id="duree_demandee">
+
+  <label>Motif de la demande</label>
+  <textarea id="motif_demande"></textarea>
+
+  <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
+</section>
+
+<section>
+  <h3>Liste des prêts</h3>
+  <table id="table-prets">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Client</th>
+        <th>Type</th>
+        <th>Montant demandé</th>
+        <th>Durée</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<script>
+const api = "http://localhost/tp-flightphp-crud1/ws";
+
+function ajax(method, url, data, callback) {
+  const xhr = new XMLHttpRequest();
+  xhr.open(method, api + url, true);
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) callback(JSON.parse(xhr.responseText));
+      else alert("Erreur : " + xhr.responseText);
+    }
+  };
+  xhr.send(data);
+}
+
+function remplirSelect(id, endpoint, labelKey = 'nom') {
+  ajax("GET", `/${endpoint}`, null, data => {
+    const select = document.getElementById(id);
+    select.innerHTML = `<option value="">-- Sélectionner --</option>`;
+    data.forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e.id;
+      opt.textContent = e[labelKey];
+      select.appendChild(opt);
+    });
+  });
+}
+
+function getFormData() {
+  return `numero_pret=${numero_pret.value}&id_client=${id_client.value}&id_type_pret=${id_type_pret.value}&id_admin_createur=${id_admin_createur.value}&montant_demande=${montant_demande.value}&duree_demandee=${duree_demandee.value}&motif_demande=${encodeURIComponent(motif_demande.value)}`;
+}
+
+function ajouterOuModifier() {
+  const id = document.getElementById("id").value;
+  const data = getFormData();
+  if (!id_client.value || !id_type_pret.value || !montant_demande.value) {
+    alert("Champs obligatoires manquants");
+    return;
+  }
+
+  if (id) {
+    ajax("PUT", `/prets/${id}`, data, () => { resetForm(); chargerPrets(); });
+  } else {
+    ajax("POST", "/prets", data, () => { resetForm(); chargerPrets(); });
+  }
+}
+
+function chargerPrets() {
+  ajax("GET", "/prets", null, data => {
+    const tbody = document.querySelector("#table-prets tbody");
+    tbody.innerHTML = "";
+    data.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.id}</td>
+        <td>${p.id_client}</td>
+        <td>${p.id_type_pret}</td>
+        <td>${p.montant_demande}</td>
+        <td>${p.duree_demandee} mois</td>
+        <td>
+          <button onclick='remplir(${JSON.stringify(p)})'>✏️</button>
+          <button onclick='supprimer(${p.id})'>🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+function remplir(p) {
+  id.value = p.id;
+  numero_pret.value = p.numero_pret;
+  id_client.value = p.id_client;
+  id_type_pret.value = p.id_type_pret;
+  id_admin_createur.value = p.id_admin_createur;
+  montant_demande.value = p.montant_demande;
+  duree_demandee.value = p.duree_demandee;
+  motif_demande.value = p.motif_demande || "";
+}
+
+function supprimer(id) {
+  if (confirm("Supprimer ce prêt ?")) {
+    ajax("DELETE", `/prets/${id}`, null, () => chargerPrets());
+  }
+}
+
+function resetForm() {
+  document.querySelectorAll("input, select, textarea").forEach(el => el.value = "");
+  document.getElementById("id").value = "";
+}
+
+remplirSelect("id_client", "clients");
+remplirSelect("id_type_pret", "typeprets");
+remplirSelect("id_admin_createur", "admins");
+chargerPrets();
+</script>
+
+</body>
+</html>

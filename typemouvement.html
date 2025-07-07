@@ -4,77 +4,19 @@
   <meta charset="UTF-8">
   <title>Gestion des types de mouvements</title>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      background-color: #f9f9f9;
-    }
-
-    h1 {
-      color: #2c3e50;
-      margin-bottom: 20px;
-    }
-
-    input, select, button {
-      margin: 5px;
-      padding: 10px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    button {
-      background-color: #3498db;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #2980b9;
-    }
-
-    .error {
-      color: red;
-      margin-top: 10px;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-      background-color: #fff;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f2f2f2;
-    }
-
-    td button {
-      background: none;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    td button:hover {
-      color: red;
-    }
+    body { font-family: sans-serif; padding: 20px; }
+    input, select, button { margin: 5px; padding: 5px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .error { color: red; }
   </style>
 </head>
 <body>
 
-  <!-- SECTION : EN-TÊTE -->
   <h1>Gestion des types de mouvements</h1>
 
-  <!-- SECTION : FORMULAIRE DE SAISIE -->
-  <section id="formulaire">
+  <div>
     <input type="hidden" id="id">
     <select id="id_type" required>
       <option value="">Sélectionner une catégorie</option>
@@ -82,28 +24,20 @@
     <input type="text" id="nom" placeholder="Nom du mouvement" required>
     <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
     <div id="error-message" class="error"></div>
-  </section>
+  </div>
 
-  <!-- SECTION : TABLEAU DES MOUVEMENTS -->
-  <section id="tableau">
-    <table id="table-mouvements">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Catégorie</th>
-          <th>Nom</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
+  <table id="table-mouvements">
+    <thead>
+      <tr>
+        <th>ID</th><th>Catégorie</th><th>Nom</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-  <!-- SECTION : SCRIPT -->
   <script>
     const apiBase = "http://localhost/tp-flightphp-crud1/ws";
 
-    // --- FONCTION GÉNÉRIQUE AJAX ---
     function ajax(method, url, data, callback, errorCallback) {
       const xhr = new XMLHttpRequest();
       xhr.open(method, apiBase + url, true);
@@ -121,27 +55,26 @@
       xhr.send(data);
     }
 
-    // --- CHARGEMENT DES CATÉGORIES ---
     function chargerCategories() {
-      ajax("GET", "/categories", null, (data) => {
-        const select = document.getElementById("id_type");
-        select.innerHTML = '<option value="">Sélectionner une catégorie</option>';
-        if (data && data.length > 0) {
-          data.forEach(c => {
-            const option = document.createElement("option");
-            option.value = c.id;
-            option.textContent = c.type_name;
-            select.appendChild(option);
-          });
-        } else {
-          document.getElementById("error-message").textContent = "Aucune catégorie disponible.";
-        }
-      }, () => {
-        document.getElementById("error-message").textContent = "Erreur lors du chargement des catégories.";
+  ajax("GET", "/categories", null, (data) => {
+    console.log("Réponse de /categories :", data); // Débogage
+    const select = document.getElementById("id_type");
+    select.innerHTML = '<option value="">Sélectionner une catégorie</option>';
+    if (data && data.length > 0) {
+      data.forEach(c => {
+        const option = document.createElement("option");
+        option.value = c.id;
+        option.textContent = c.type_name;
+        select.appendChild(option);
       });
+    } else {
+      document.getElementById("error-message").textContent = "Aucune catégorie disponible.";
     }
-
-    // --- CHARGEMENT DES MOUVEMENTS ---
+  }, (error) => {
+    console.error("Erreur AJAX :", error);
+    document.getElementById("error-message").textContent = "Erreur lors du chargement des catégories.";
+  });
+}
     function chargerMouvements() {
       ajax("GET", "/mouvements", null, (data) => {
         const tbody = document.querySelector("#table-mouvements tbody");
@@ -155,13 +88,13 @@
             <td>
               <button onclick='remplirFormulaire(${JSON.stringify(m)})'>✏️</button>
               <button onclick='supprimerMouvement(${m.id})'>🗑️</button>
-            </td>`;
+            </td>
+          `;
           tbody.appendChild(tr);
         });
       });
     }
 
-    // --- AJOUT OU MODIFICATION ---
     function ajouterOuModifier() {
       const id = document.getElementById("id").value;
       const id_type = document.getElementById("id_type").value;
@@ -180,20 +113,19 @@
         ajax("PUT", `/mouvements/${id}`, data, () => {
           resetForm();
           chargerMouvements();
-        }, () => {
+        }, (error) => {
           errorMessage.textContent = "Erreur lors de la mise à jour.";
         });
       } else {
         ajax("POST", "/mouvements", data, () => {
           resetForm();
           chargerMouvements();
-        }, () => {
+        }, (error) => {
           errorMessage.textContent = "Erreur lors de la création.";
         });
       }
     }
 
-    // --- REMPLIR FORMULAIRE POUR MODIFICATION ---
     function remplirFormulaire(m) {
       document.getElementById("id").value = m.id;
       document.getElementById("id_type").value = m.id_type;
@@ -201,18 +133,16 @@
       document.getElementById("error-message").textContent = "";
     }
 
-    // --- SUPPRESSION D’UN MOUVEMENT ---
     function supprimerMouvement(id) {
       if (confirm("Supprimer ce type de mouvement ?")) {
         ajax("DELETE", `/mouvements/${id}`, null, () => {
           chargerMouvements();
-        }, () => {
+        }, (error) => {
           document.getElementById("error-message").textContent = "Erreur lors de la suppression.";
         });
       }
     }
 
-    // --- RÉINITIALISATION DU FORMULAIRE ---
     function resetForm() {
       document.getElementById("id").value = "";
       document.getElementById("id_type").value = "";
@@ -220,7 +150,6 @@
       document.getElementById("error-message").textContent = "";
     }
 
-    // --- INITIALISATION ---
     chargerCategories();
     chargerMouvements();
   </script>

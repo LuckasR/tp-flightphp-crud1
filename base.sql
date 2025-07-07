@@ -11,17 +11,13 @@ CREATE TABLE etablissementFinancier (
     curr_montant DECIMAL(15,2) DEFAULT 0
 );
 
-CREATE TABLE role (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(50) NOT NULL UNIQUE
-);
+
 
 CREATE TABLE admin (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     mot_de_passe VARCHAR(255) NOT NULL,
-    role_id INT NOT NULL,
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES role(id)
 );
