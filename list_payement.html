@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gestion des Paiements</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { margin-bottom: 10px; }
+    section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+    label { display: block; margin-top: 10px; }
+    input, select, textarea { width: 100%; padding: 6px; margin-top: 3px; }
+    button { margin-top: 10px; padding: 8px 15px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+
+<h1>Gestion des Paiements</h1>
+
+<section>
+  <input type="hidden" id="id">
+
+  <label for="id_pret">Prêt</label>
+  <select id="id_pret"></select>
+
+  <label for="id_admin">Administrateur</label>
+  <select id="id_admin"></select>
+
+  <label for="montant_paye">Montant payé (€)</label>
+  <input type="number" id="montant_paye" min="0" step="0.01">
+
+  <label for="reference_paiement">Référence paiement</label>
+  <input type="text" id="reference_paiement">
+
+  <label for="commentaire">Commentaire</label>
+  <textarea id="commentaire" rows="3"></textarea>
+
+  <label for="date_valeur">Date valeur</label>
+  <input type="date" id="date_valeur">
+
+  <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
+</section>
+
+<section>
+  <h3>Liste des paiements</h3>
+  <table id="table-paiements">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>ID Prêt</th>
+        <th>ID Admin</th>
+        <th>Montant payé</th>
+        <th>Référence paiement</th>
+        <th>Commentaire</th>
+        <th>Date paiement</th>
+        <th>Date valeur</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<script>
+const api = "http://localhost/tp-flightphp-crud1/ws";
+
+function ajax(method, url, data, callback) {
+  const xhr = new XMLHttpRequest();
+  xhr.open(method, api + url, true);
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState === 4) {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          callback(JSON.parse(xhr.responseText));
+        } catch(e) {
+          alert("Réponse JSON invalide");
+          console.error(e);
+        }
+      } else {
+        alert("Erreur : " + xhr.responseText);
+      }
+    }
+  };
+  xhr.send(data);
+}
+
+function remplirSelect(id, endpoint, labelKey = 'nom') {
+  ajax("GET", `/${endpoint}`, null, data => {
+    const select = document.getElementById(id);
+    select.innerHTML = `<option value="">-- Sélectionner --</option>`;
+    data.forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e.id;
+      opt.textContent = e[labelKey] || e.nom || e.id;
+      select.appendChild(opt);
+    });
+  });
+}
+
+function getFormData() {
+  return `id_pret=${encodeURIComponent(document.getElementById("id_pret").value)}&` +
+         `id_admin=${encodeURIComponent(document.getElementById("id_admin").value)}&` +
+         `montant_paye=${encodeURIComponent(document.getElementById("montant_paye").value)}&` +
+         `reference_paiement=${encodeURIComponent(document.getElementById("reference_paiement").value)}&` +
+         `commentaire=${encodeURIComponent(document.getElementById("commentaire").value)}&` +
+         `date_valeur=${encodeURIComponent(document.getElementById("date_valeur").value)}`;
+}
+
+function ajouterOuModifier() {
+  const id = document.getElementById("id").value;
+  const id_pret = document.getElementById("id_pret").value;
+  const id_admin = document.getElementById("id_admin").value;
+  const montant_paye = document.getElementById("montant_paye").value;
+
+  if (!id_pret || !id_admin || !montant_paye) {
+    alert("Veuillez remplir tous les champs obligatoires (Prêt, Administrateur, Montant).");
+    return;
+  }
+
+  const data = getFormData();
+
+  if (id) {
+    ajax("PUT", `/paiements/${id}`, data, () => {
+      resetForm();
+      chargerPaiements();
+    });
+  } else {
+    ajax("POST", "/paiements", data, () => {
+      resetForm();
+      chargerPaiements();
+    });
+  }
+}
+
+function chargerPaiements() {
+  ajax("GET", "/paiements", null, data => {
+    const tbody = document.querySelector("#table-paiements tbody");
+    tbody.innerHTML = "";
+    if(data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9">Aucun paiement trouvé.</td></tr>`;
+      return;
+    }
+    data.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.id}</td>
+        <td>${p.id_pret}</td>
+        <td>${p.id_admin}</td>
+        <td>${Number(p.montant_paye).toFixed(2).replace('.', ',')}</td>
+        <td>${p.reference_paiement || ''}</td>
+        <td>${p.commentaire || ''}</td>
+        <td>${p.date_paiement}</td>
+        <td>${p.date_valeur || ''}</td>
+        <td>
+          <button onclick='remplir(${JSON.stringify(p)})'>✏️</button>
+          <button onclick='supprimer(${p.id})'>🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+function remplir(p) {
+  document.getElementById("id").value = p.id;
+  document.getElementById("id_pret").value = p.id_pret || "";
+  document.getElementById("id_admin").value = p.id_admin || "";
+  document.getElementById("montant_paye").value = p.montant_paye || "";
+  document.getElementById("reference_paiement").value = p.reference_paiement || "";
+  document.getElementById("commentaire").value = p.commentaire || "";
+  document.getElementById("date_valeur").value = p.date_valeur || "";
+}
+
+function supprimer(id) {
+  if (confirm("Supprimer ce paiement ?")) {
+    ajax("DELETE", `/paiements/${id}`, null, () => chargerPaiements());
+  }
+}
+
+function resetForm() {
+  document.getElementById("id").value = "";
+  document.getElementById("id_pret").value = "";
+  document.getElementById("id_admin").value = "";
+  document.getElementById("montant_paye").value = "";
+  document.getElementById("reference_paiement").value = "";
+  document.getElementById("commentaire").value = "";
+  document.getElementById("date_valeur").value = "";
+}
+
+// Chargement initial des selects et de la liste
+remplirSelect("id_pret", "prets");
+remplirSelect("id_admin", "admins");
+chargerPaiements();
+
+</script>
+
+</body>
+</html>
