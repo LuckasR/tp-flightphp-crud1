@@ -55,4 +55,18 @@ class EtablissementFinancierController {
             Flight::halt(500, 'Erreur serveur: ' . $e->getMessage());
         }
     }
+
+
+    
+   public static function getMonthlyInterest() {
+        $data = Flight::request()->data;
+        $annee_debut = $data->annee_debut ?? date('Y');
+        $mois_debut = $data->mois_debut ?? 1;
+        $annee_fin = $data->annee_fin ?? date('Y');
+        $mois_fin = $data->mois_fin ?? 12;
+
+        $interestData = EtablissementFinancier::getMonthlyInterest($annee_debut, $mois_debut, $annee_fin, $mois_fin);
+        Flight::json($interestData);
+    }
+
 }
