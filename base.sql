@@ -1,5 +1,3 @@
-CREATE DATABASE financier;
-USE financier;
 CREATE TABLE etablissementFinancier (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL UNIQUE,
@@ -11,13 +9,17 @@ CREATE TABLE etablissementFinancier (
     curr_montant DECIMAL(15,2) DEFAULT 0
 );
 
-
+CREATE TABLE role (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(50) NOT NULL UNIQUE
+);
 
 CREATE TABLE admin (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     mot_de_passe VARCHAR(255) NOT NULL,
+    role_id INT NOT NULL,
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES role(id)
 );
@@ -50,7 +52,7 @@ create sequence
 numero_compte
 start with 1987544566 
 increment by 1 ;
-select  numero_compte.nextval()
+select  numero_compte.nextval() as numero_compte;
 
 CREATE TABLE compte_bancaire (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -140,7 +142,7 @@ INSERT INTO statut_pret (nom, description, couleur) VALUES
 
 CREATE TABLE pret (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    numero_pret VARCHAR(20) UNIQUE NOT NULL,
+    numero_pret VARCHAR(100) UNIQUE NOT NULL,
     id_client INT NOT NULL,
     id_type_pret INT NOT NULL,
     id_admin_createur INT NOT NULL,

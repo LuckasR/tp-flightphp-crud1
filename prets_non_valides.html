@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Prêts en attente de validation</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f0f0f0; }
+    button { margin-right: 5px; padding: 5px 10px; }
+  </style>
+</head>
+<body>
+
+<h1>Prêts en attente de validation</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Numéro</th>
+      <th>Client</th>
+      <th>Montant</th>
+      <th>Durée</th>
+      <th>Motif</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="liste-prets"></tbody>
+</table>
+
+<script>
+const api = "http://localhost/tp-flightphp-crud1/ws";
+
+// Requête AJAX
+function ajax(method, url, data, callback) {
+  const xhr = new XMLHttpRequest();
+  xhr.open(method, api + url, true);
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        callback(JSON.parse(xhr.responseText));
+      } else {
+        alert("Erreur : " + xhr.responseText);
+      }
+    }
+  };
+  xhr.send(data);
+}
+
+// Charger les prêts non validés
+function chargerPretsNonValides() {
+  ajax("GET", "/prets/non-valides", null, data => {
+    const tbody = document.getElementById("liste-prets");
+    tbody.innerHTML = "";
+
+    if (!Array.isArray(data)) {
+      alert("Format de données invalide !");
+      return;
+    }
+
+    data.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.id}</td>
+        <td>${p.numero_pret}</td>
+        <td>${p.id_client}</td>
+        <td>${p.montant_demande}</td>
+        <td>${p.duree_demandee} mois</td>
+        <td>${p.motif_demande || ""}</td>
+        <td>
+        <a href="/tp-flightphp-crud1/ws/prets/valider/${p.id}">✅ Valider</a>
+        <a href="/tp-flightphp-crud1/ws/prets/rejeter/${p.id}">❌ Rejeter</a>
+        </td>
+
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+}
+
+// Action de validation
+function valider(id) {
+  if (confirm("Valider ce prêt ?")) {
+    ajax("PUT", `/prets/valider/${id}`, "", () => {
+      alert("Prêt validé !");
+      chargerPretsNonValides();
+    });
+  }
+}
+
+// Action de rejet
+function rejeter(id) {
+  if (confirm("Rejeter ce prêt ?")) {
+    const raison = prompt("Raison du rejet :");
+    if (raison) {
+      ajax("PUT", `/prets/rejeter/${id}`, `raison_rejet=${encodeURIComponent(raison)}`, () => {
+        alert("Prêt rejeté !");
+        chargerPretsNonValides();
+      });
+    }
+  }
+}
+
+// Lancer au chargement
+chargerPretsNonValides();
+</script>
+
+</body>
+</html>

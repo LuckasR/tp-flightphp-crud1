@@ -9,9 +9,9 @@
     section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
     label { display: block; margin-top: 10px; }
     input, select, textarea { width: 100%; padding: 6px; margin-top: 3px; }
-    button { margin-top: 10px; padding: 8px 15px; }
+    button { margin-top: 10px; padding: 8px 15px; cursor: pointer; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background-color: #f0f0f0; }
   </style>
 </head>
@@ -20,29 +20,26 @@
 <h1>Gestion des Prêts</h1>
 
 <section>
-    
   <input type="hidden" id="id">
+  <input type="hidden" id="numero_pret">
 
-  <label>Numéro du prêt</label>
-  <input type="text" id="numero_pret" placeholder="Ex: PRT-2025-0001">
-
-  <label>Client</label>
+  <label for="id_client">Client</label>
   <select id="id_client"></select>
 
-  <label>Type de prêt</label>
+  <label for="id_type_pret">Type de prêt</label>
   <select id="id_type_pret"></select>
 
-  <label>Administrateur créateur</label>
+  <label for="id_admin_createur">Administrateur créateur</label>
   <select id="id_admin_createur"></select>
 
-  <label>Montant demandé</label>
-  <input type="number" id="montant_demande">
+  <label for="montant_demande">Montant demandé</label>
+  <input type="number" id="montant_demande" min="0" step="0.01">
 
-  <label>Durée demandée (mois)</label>
-  <input type="number" id="duree_demandee">
+  <label for="duree_demandee">Durée demandée (mois)</label>
+  <input type="number" id="duree_demandee" min="1" step="1">
 
-  <label>Motif de la demande</label>
-  <textarea id="motif_demande"></textarea>
+  <label for="motif_demande">Motif de la demande</label>
+  <textarea id="motif_demande" rows="3"></textarea>
 
   <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
 </section>
@@ -73,8 +70,16 @@ function ajax(method, url, data, callback) {
   xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
   xhr.onreadystatechange = () => {
     if (xhr.readyState === 4) {
-      if (xhr.status === 200) callback(JSON.parse(xhr.responseText));
-      else alert("Erreur : " + xhr.responseText);
+      if (xhr.status === 200) {
+        try {
+          callback(JSON.parse(xhr.responseText));
+        } catch(e) {
+          alert("Réponse JSON invalide");
+          console.error(e);
+        }
+      } else {
+        alert("Erreur : " + xhr.responseText);
+      }
     }
   };
   xhr.send(data);
@@ -87,28 +92,47 @@ function remplirSelect(id, endpoint, labelKey = 'nom') {
     data.forEach(e => {
       const opt = document.createElement("option");
       opt.value = e.id;
-      opt.textContent = e[labelKey];
+      opt.textContent = e[labelKey] || e.nom || e.email || e.id; // fallback si labelKey absent
       select.appendChild(opt);
     });
   });
 }
 
 function getFormData() {
-  return `numero_pret=${numero_pret.value}&id_client=${id_client.value}&id_type_pret=${id_type_pret.value}&id_admin_createur=${id_admin_createur.value}&montant_demande=${montant_demande.value}&duree_demandee=${duree_demandee.value}&motif_demande=${encodeURIComponent(motif_demande.value)}`;
+  const numero_pret = document.getElementById("numero_pret").value;
+  const id_client = document.getElementById("id_client").value;
+  const id_type_pret = document.getElementById("id_type_pret").value;
+  const id_admin_createur = document.getElementById("id_admin_createur").value;
+  const montant_demande = document.getElementById("montant_demande").value;
+  const duree_demandee = document.getElementById("duree_demandee").value;
+  const motif_demande = document.getElementById("motif_demande").value;
+
+  return `numero_pret=${encodeURIComponent(numero_pret)}&id_client=${encodeURIComponent(id_client)}&id_type_pret=${encodeURIComponent(id_type_pret)}&id_admin_createur=${encodeURIComponent(id_admin_createur)}&montant_demande=${encodeURIComponent(montant_demande)}&duree_demandee=${encodeURIComponent(duree_demandee)}&motif_demande=${encodeURIComponent(motif_demande)}`;
 }
 
 function ajouterOuModifier() {
   const id = document.getElementById("id").value;
-  const data = getFormData();
-  if (!id_client.value || !id_type_pret.value || !montant_demande.value) {
-    alert("Champs obligatoires manquants");
+  const id_client = document.getElementById("id_client").value;
+  const id_type_pret = document.getElementById("id_type_pret").value;
+  const montant_demande = document.getElementById("montant_demande").value;
+
+  if (!id_client || !id_type_pret || !montant_demande) {
+    alert("Veuillez remplir tous les champs obligatoires (Client, Type de prêt, Montant).");
     return;
   }
 
+  const data = getFormData();
+
   if (id) {
-    ajax("PUT", `/prets/${id}`, data, () => { resetForm(); chargerPrets(); });
+    ajax("PUT", `/prets/${id}`, data, () => {
+      resetForm();
+      chargerPrets();
+    });
   } else {
-    ajax("POST", "/prets", data, () => { resetForm(); chargerPrets(); });
+    ajax("POST", "/prets", data, () => {
+      resetForm();
+      chargerPrets();
+    });
   }
 }
 
@@ -120,8 +144,8 @@ function chargerPrets() {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${p.id}</td>
-        <td>${p.id_client}</td>
-        <td>${p.id_type_pret}</td>
+        <td>${p.nom_client || p.id_client}</td>
+        <td>${p.nom_type_pret || p.id_type_pret}</td>
         <td>${p.montant_demande}</td>
         <td>${p.duree_demandee} mois</td>
         <td>
@@ -135,14 +159,14 @@ function chargerPrets() {
 }
 
 function remplir(p) {
-  id.value = p.id;
-  numero_pret.value = p.numero_pret;
-  id_client.value = p.id_client;
-  id_type_pret.value = p.id_type_pret;
-  id_admin_createur.value = p.id_admin_createur;
-  montant_demande.value = p.montant_demande;
-  duree_demandee.value = p.duree_demandee;
-  motif_demande.value = p.motif_demande || "";
+  document.getElementById("id").value = p.id;
+  document.getElementById("numero_pret").value = p.numero_pret || "";
+  document.getElementById("id_client").value = p.id_client || "";
+  document.getElementById("id_type_pret").value = p.id_type_pret || "";
+  document.getElementById("id_admin_createur").value = p.id_admin_createur || "";
+  document.getElementById("montant_demande").value = p.montant_demande || "";
+  document.getElementById("duree_demandee").value = p.duree_demandee || "";
+  document.getElementById("motif_demande").value = p.motif_demande || "";
 }
 
 function supprimer(id) {
@@ -152,14 +176,22 @@ function supprimer(id) {
 }
 
 function resetForm() {
-  document.querySelectorAll("input, select, textarea").forEach(el => el.value = "");
   document.getElementById("id").value = "";
+  document.getElementById("numero_pret").value = "";
+  document.getElementById("id_client").value = "";
+  document.getElementById("id_type_pret").value = "";
+  document.getElementById("id_admin_createur").value = "";
+  document.getElementById("montant_demande").value = "";
+  document.getElementById("duree_demandee").value = "";
+  document.getElementById("motif_demande").value = "";
 }
 
-remplirSelect("id_client", "clients");
-remplirSelect("id_type_pret", "typeprets");
-remplirSelect("id_admin_createur", "admins");
+// Chargement initial des selects et table
+remplirSelect("id_client", "clients", "nom");
+remplirSelect("id_type_pret", "typeprets", "nom");
+remplirSelect("id_admin_createur", "admins", "nom");
 chargerPrets();
+
 </script>
 
 </body>
