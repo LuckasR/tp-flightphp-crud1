@@ -28,15 +28,6 @@ CREATE TABLE type_client ( -- e
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(50) NOT NULL,
     description VARCHAR(255),
-    montant_min DECIMAL(15,2) NOT NULL,
-    montant_max DECIMAL(15,2) NOT NULL,
-    duree_min INT NOT NULL,
-    duree_max INT NOT NULL,
-    taux_interet DECIMAL(5,2) NOT NULL,
-    frais_dossier DECIMAL(15,2) DEFAULT 0,
-    penalite_retard DECIMAL(5,2) DEFAULT 0,
-    conditions_speciales TEXT,
-    dossier_fournir VARCHAR(200),
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
     date_modification DATETIME ON UPDATE CURRENT_TIMESTAMP
 );
