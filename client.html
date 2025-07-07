@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion des clients</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, select, button { margin: 5px; padding: 5px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+
+  <h1>Gestion des clients</h1>
+
+  <div>
+    <input type="hidden" id="id">
+    <input type="text" id="nom" placeholder="Nom">
+    <input type="email" id="email" placeholder="Email">
+    <input type="date" id="date_naissance" placeholder="Date de naissance">
+    <select id="id_type_client" required>
+      <option value="">Sélectionner un type de client</option>
+    </select>
+    <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
+    <div id="error-message" class="error"></div>
+  </div>
+
+  <table id="table-clients">
+    <thead>
+      <tr>
+        <th>ID</th><th>Nom</th><th>Email</th><th>Date de naissance</th><th>Type de client</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const apiBase = "http://localhost/tp-flightphp-crud1/ws";
+
+    function ajax(method, url, data, callback, errorCallback) {
+      const xhr = new XMLHttpRequest();
+      xhr.open(method, apiBase + url, true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            try {
+              callback(JSON.parse(xhr.responseText));
+            } catch (e) {
+              errorCallback("Réponse non-JSON : " + xhr.responseText);
+            }
+          } else {
+            errorCallback(`Erreur serveur (${xhr.status}) : ${xhr.responseText}`);
+          }
+        }
+      };
+      xhr.send(data);
+    }
+
+    function chargerTypesClients() {
+      ajax("GET", "/type_clients", null, (data) => {
+        console.log("Réponse de /type_clients :", data);
+        const select = document.getElementById("id_type_client");
+        select.innerHTML = '<option value="">Sélectionner un type de client</option>';
+        if (data && data.length > 0) {
+          data.forEach(t => {
+            const option = document.createElement("option");
+            option.value = t.id;
+            option.textContent = t.nom;
+            select.appendChild(option);
+          });
+        } else {
+          document.getElementById("error-message").textContent = "Aucun type de client disponible.";
+        }
+      }, (error) => {
+        document.getElementById("error-message").textContent = error;
+      });
+    }
+
+    function chargerClients() {
+      ajax("GET", "/clients", null, (data) => {
+        console.log("Réponse de /clients :", data);
+        const tbody = document.querySelector("#table-clients tbody");
+        tbody.innerHTML = "";
+        data.forEach(c => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${c.id}</td>
+            <td>${c.nom || ''}</td>
+            <td>${c.email || ''}</td>
+            <td>${c.date_naissance || ''}</td>
+            <td>${c.type_client_nom}</td>
+            <td>
+              <button onclick='remplirFormulaire(${JSON.stringify(c)})'>✏️</button>
+              <button onclick='supprimerClient(${c.id})'>🗑️</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }, (error) => {
+        document.getElementById("error-message").textContent = error;
+      });
+    }
+
+    function ajouterOuModifier() {
+      const id = document.getElementById("id").value;
+      const nom = document.getElementById("nom").value;
+      const email = document.getElementById("email").value;
+      const date_naissance = document.getElementById("date_naissance").value;
+      const id_type_client = document.getElementById("id_type_client").value;
+      const errorMessage = document.getElementById("error-message");
+
+      if (!id_type_client) {
+        errorMessage.textContent = "Veuillez sélectionner un type de client.";
+        return;
+      }
+
+      errorMessage.textContent = "";
+      const data = `nom=${encodeURIComponent(nom)}&email=${encodeURIComponent(email)}&date_naissance=${encodeURIComponent(date_naissance)}&id_type_client=${encodeURIComponent(id_type_client)}`;
+
+      if (id) {
+        ajax("PUT", `/clients/${id}`, data, () => {
+          resetForm();
+          chargerClients();
+        }, (error) => {
+          errorMessage.textContent = error;
+        });
+      } else {
+        ajax("POST", "/clients", data, () => {
+          resetForm();
+          chargerClients();
+        }, (error) => {
+          errorMessage.textContent = error;
+        });
+      }
+    }
+
+    function remplirFormulaire(c) {
+      document.getElementById("id").value = c.id;
+      document.getElementById("nom").value = c.nom || '';
+      document.getElementById("email").value = c.email || '';
+      document.getElementById("date_naissance").value = c.date_naissance || '';
+      document.getElementById("id_type_client").value = c.id_type_client;
+      document.getElementById("error-message").textContent = "";
+    }
+
+    function supprimerClient(id) {
+      if (confirm("Supprimer ce client、北2client ?")) {
+        ajax("DELETE", `/clients/${id}`, null, () => {
+          chargerClients();
+        }, (error) => {
+          document.getElementById("error-message").textContent = error;
+        });
+      }
+    }
+
+    function resetForm() {
+      document.getElementById("id").value = "";
+      document.getElementById("nom").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("date_naissance").value = "";
+      document.getElementById("id_type_client").value = "";
+      document.getElementById("error-message").textContent = "";
+    }
+
+    chargerTypesClients();
+    chargerClients();
+  </script>
+
+</body>
+</html>
