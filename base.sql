@@ -183,3 +183,19 @@ CREATE TABLE paiement (
     FOREIGN KEY (id_pret) REFERENCES pret(id),
     FOREIGN KEY (id_admin) REFERENCES admin(id)
 );
+
+
+SELECT 
+    2025 AS annee,
+    07 AS mois,
+    'March 2025' AS mois_annee,
+    ROUND(SUM((p.montant_accorde * p.taux_applique / 100) / 12), 2) AS interet_mensuel
+FROM 
+    pret p
+JOIN 
+    type_pret tp ON p.id_type_pret = tp.id
+WHERE 
+    p.date_deblocage IS NOT NULL
+    AND p.date_derniere_echeance IS NOT NULL and
+    (p.date_deblocage IS NOT NULL  AND p.date_deblocage <= '2025-07-01')  
+    AND (p.date_derniere_echeance IS NOT NULL AND p.date_derniere_echeance >= '2026-07-30') ; 

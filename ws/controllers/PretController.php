@@ -12,6 +12,12 @@ class PretController {
         echo json_encode(Pret::getAllNotValidate());
     }
 
+    public static function getAllValidate()  {
+        echo json_encode(Pret::getAllValidate() );
+    }
+
+
+    
 
     public static function validerPret($id, $data) {
         Pret::validerPret($id, $data);
@@ -290,7 +296,8 @@ public static function genererPDF($idPret) {
     
     $fileName = "contrat_pret_" . $pret['numero_pret'] . "_" . date('Ymd_His') . ".pdf";
     $filePath = $outputDir . $fileName;
-    $pdf->Output('F', $filePath);
+    $pdf->Output('I', "contrat_pret_" . $pret['numero_pret'] . ".pdf");
+    exit;
     
     // 4. Reponse JSON avec informations detaillees
     Flight::json([

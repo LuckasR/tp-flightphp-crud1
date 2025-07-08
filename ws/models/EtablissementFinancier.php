@@ -100,7 +100,7 @@ class EtablissementFinancier {
                         ? AS annee,
                         ? AS mois,
                         ? AS mois_annee,
-                        ROUND(SUM((p.montant_accorde * tp.taux_interet / 100) / 12), 2) AS interet_mensuel
+                        ROUND(SUM((p.montant_accorde * p.taux_applique / 100) / 12), 2) AS interet_mensuel
                     FROM 
                         pret p
                         JOIN type_pret tp ON p.id_type_pret = tp.id
@@ -143,3 +143,6 @@ class EtablissementFinancier {
     
 
 }
+
+
+

@@ -344,7 +344,7 @@
                         <a class="nav-link" href="compte_bancaire.php">Comptes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#transactions">Transactions</a>
+                        <a class="nav-link" href="transaction_compte.php">Transactions</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="gestion_remboursement.php">Remboursement</a>
@@ -353,7 +353,10 @@
                         <a class="nav-link" href="interest_report.php">Interest</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#services">Services</a>
+                        <a class="nav-link" href="service.php">Liste Fonctionnalite</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="prets_non_valides.php">Pret</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#profile"><i class="fas fa-user me-1"></i>Profil</a>

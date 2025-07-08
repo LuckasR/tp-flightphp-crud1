@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../db.php';
-
+// require_once __DIR__ . '/TypePret.php';
 class Pret {
 
     public static function getAll() {
@@ -15,73 +15,122 @@ class Pret {
         $stmt = $db->query("SELECT * FROM pret WHERE id_statut = 1"); // 1 = En attente de validation
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-public static function validerPret($id) {
-    $db = getDB();
- 
 
-    // Récupérer les données PUT
-    parse_str(file_get_contents("php://input"), $put_vars);
 
-    // Vérifier que le prêt existe et est en attente
-    $stmtCheck = $db->prepare("SELECT * FROM pret WHERE id = ? AND id_statut = 1");
-    $stmtCheck->execute([$id]);
-    $pret = $stmtCheck->fetch(PDO::FETCH_ASSOC);
-    if (!$pret) {
-        throw new Exception("Prêt introuvable ou déjà validé/rejeté.");
+    public static function getAllValidate() {
+        $db = getDB();
+        $stmt = $db->query("SELECT * FROM pret WHERE id_statut = 3"); // 1 = En attente de validation
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Récupérer et valider les données
-    $montantAccorde = isset($put_vars['montant_accorde']) ? $put_vars['montant_accorde'] : 0;
-    $fraisDossier = isset($put_vars['frais_dossier']) ? $put_vars['frais_dossier'] : 0;
-    $fraisAssurance = isset($put_vars['frais_assurance']) ? $put_vars['frais_assurance'] : 0;
-    $dureeAccordee = isset($put_vars['duree_accordee']) ? $put_vars['duree_accordee'] : 0;
-    $tauxApplique = isset($put_vars['taux_applique']) ? $put_vars['taux_applique'] : 0;
-    $idAdminValidateur = isset($put_vars['id_admin_validateur']) ? $put_vars['id_admin_validateur'] : null;
+public static function validerPret($id) {
+    $db = getDB();
+    $db->beginTransaction(); // Sécurise l'ensemble des opérations
 
-    // Calculs
-    $montantTotal = $montantAccorde + $fraisDossier + ($fraisAssurance * $montantAccorde / 100);
-    $mensualite = $dureeAccordee > 0 ? $montantTotal / $dureeAccordee : 0;
-    $montantRestant = $montantTotal;
+    try {
+        // Récupération PUT
+        parse_str(file_get_contents("php://input"), $put_vars);
 
-    $datePremiereEcheance = date('Y-m-d', strtotime('+1 month'));
-    $dateDerniereEcheance = date('Y-m-d', strtotime("+$dureeAccordee month"));
+        // Vérifier si le prêt est valide
+        $stmtCheck = $db->prepare("SELECT * FROM pret WHERE id = ? AND id_statut = 1");
+        $stmtCheck->execute([$id]);
+        $pret = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+        if (!$pret) {
+            throw new Exception("Prêt introuvable ou déjà validé/rejeté.");
+        }
 
-    // Mise à jour
-    $stmt = $db->prepare("
-        UPDATE pret SET
-            id_admin_validateur = :id_admin_validateur,
-            taux_applique = :taux_applique,
-            montant_accorde = :montant_accorde,
-            duree_accordee = :duree_accordee,
-            frais_dossier = :frais_dossier,
-            frais_assurance = :frais_assurance,
-            montant_total = :montant_total,
-            mensualite = :mensualite,
-            montant_restant = :montant_restant, 
-            date_decision = NOW(),
-            date_premiere_echeance = :date_premiere_echeance,
-            date_derniere_echeance = :date_derniere_echeance , 
-            id_statut = :id_statut
-        WHERE id = :id
-    ");
+        // Récupération et calcul
+        $montantAccorde = $put_vars['montant_accorde'] ?? 0;
+        $fraisDossier = $put_vars['frais_dossier'] ?? 0;
+        $fraisAssurance = $put_vars['frais_assurance'] ?? 0;
+        $dureeAccordee = $put_vars['duree_accordee'] ?? 0;
+        $tauxApplique = $put_vars['taux_applique'] ?? 0;
+        $idAdminValidateur = $put_vars['id_admin_validateur'] ?? null;
 
-    $stmt->execute([
-        ':id_admin_validateur' => $idAdminValidateur,
-        ':taux_applique' => $tauxApplique,
-        ':montant_accorde' => $montantAccorde,
-        ':duree_accordee' => $dureeAccordee,
-        ':frais_dossier' => $fraisDossier,
-        ':frais_assurance' => $fraisAssurance,
-        ':montant_total' => $montantTotal,
-        ':mensualite' => $mensualite,
-        ':montant_restant' => $montantRestant,
-        ':date_premiere_echeance' => $datePremiereEcheance,
-        ':date_derniere_echeance' => $dateDerniereEcheance,
-        ':id_statut' => 3, // 3 = Validé
-        ':id' => $id
-    ]);
+        $montantTotal = $montantAccorde + $fraisDossier + ($fraisAssurance * $montantAccorde / 100);
+        $mensualite = $dureeAccordee > 0 ? $montantTotal / $dureeAccordee : 0;
+        $montantRestant = $montantTotal;
 
-    return true;
+        $datePremiereEcheance = date('Y-m-d', strtotime('+1 month'));
+        $dateDerniereEcheance = date('Y-m-d', strtotime("+$dureeAccordee month"));
+
+        // 1. Mettre à jour le prêt
+        $stmt = $db->prepare("
+            UPDATE pret SET
+                id_admin_validateur = :id_admin_validateur,
+                taux_applique = :taux_applique,
+                montant_accorde = :montant_accorde,
+                duree_accordee = :duree_accordee,
+                frais_dossier = :frais_dossier,
+                frais_assurance = :frais_assurance,
+                montant_total = :montant_total,
+                mensualite = :mensualite,
+                montant_restant = :montant_restant, 
+                date_decision = NOW(), 
+                date_deblocage = NOW(), 
+                date_premiere_echeance = :date_premiere_echeance,
+                date_derniere_echeance = :date_derniere_echeance, 
+                id_statut = :id_statut
+            WHERE id = :id
+        ");
+        $stmt->execute([
+            ':id_admin_validateur' => $idAdminValidateur,
+            ':taux_applique' => $tauxApplique,
+            ':montant_accorde' => $montantAccorde,
+            ':duree_accordee' => $dureeAccordee,
+            ':frais_dossier' => $fraisDossier,
+            ':frais_assurance' => $fraisAssurance,
+            ':montant_total' => $montantTotal,
+            ':mensualite' => $mensualite,
+            ':montant_restant' => $montantRestant,
+            ':date_premiere_echeance' => $datePremiereEcheance,
+            ':date_derniere_echeance' => $dateDerniereEcheance,
+            ':id_statut' => 3,
+            ':id' => $id
+        ]);
+
+        // 2. Trouver le compte bancaire du client
+        $stmt = $db->prepare("SELECT id FROM compte_bancaire WHERE id_client = ?");
+        $stmt->execute([$pret['id_client']]);
+        $compte = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$compte) {
+            throw new Exception("Compte bancaire du client introuvable.");
+        }
+
+        // 3. Mettre à jour le solde du compte client
+        $stmt = $db->prepare("UPDATE compte_bancaire SET solde_compte = solde_compte + ?, last_change = NOW() WHERE id = ?");
+        $stmt->execute([$montantAccorde, $compte['id']]);
+
+        // 3. Mettre à jour le solde du compte client
+        $stmt = $db->prepare("UPDATE compte_bancaire SET solde_compte = solde_compte - ?, last_change = NOW() WHERE id = ?");
+        $stmt->execute([$fraisDossier, $compte['id']]);
+
+         // 4. Ajouter une transaction de crédit
+        $stmt = $db->prepare("INSERT INTO transaction_compte (compte_id, id_type, montant, description, date_transaction) 
+                              VALUES (?, ?, ?, ?, NOW())");
+        $stmt->execute([
+            $compte['id'],
+            2, // 1 = dépôt (ou crée un type spécifique pour déblocage prêt)
+            $fraisDossier ,
+            "Frais de dossier du pret : {$pret['numero_pret']}"
+        ]);
+        // --
+        // 4. Ajouter une transaction de crédit
+        $stmt = $db->prepare("INSERT INTO transaction_compte (compte_id, id_type, montant, description, date_transaction) 
+                              VALUES (?, ?, ?, ?, NOW())");
+        $stmt->execute([
+            $compte['id'],
+            1, // 1 = dépôt (ou crée un type spécifique pour déblocage prêt)
+            $montantAccorde,
+            "Déblocage du prêt N° {$pret['numero_pret']}"
+        ]);
+
+        $db->commit();
+        return true;
+    } catch (Exception $e) {
+        $db->rollBack();
+        throw $e;
+    }
 }
 
 

@@ -1,35 +1,33 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Prêts en attente de validation</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h1 { margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f0f0f0; }
-    button { margin-right: 5px; padding: 5px 10px; }
-  </style>
-</head>
-<body>
+<?php include('template_header.php'); ?>
+<h1 class="text-center my-5 text-primary">📋 Prêts en cours</h1>
+<a href="prets_non_valides.php"> Prets non valider </a>
 
-<h1>Prêts en attente de validation</h1>
-
-<table>
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Numéro</th>
-      <th>Client</th>
-      <th>Montant</th>
-      <th>Durée</th>
-      <th>Motif</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody id="liste-prets"></tbody>
-</table>
+<div class="container">
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle text-center">
+          <thead class="table-primary">
+            <tr class="fw-bold text-uppercase">
+              <th>#</th>
+              <th>Numéro</th>
+              <th>Client</th>
+              <th>Montant (Ar) </th>
+              <th>Durée (mois) </th>
+              <th>Motif</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="liste-prets">
+            <tr>
+              <td colspan="7" class="text-muted">Chargement en cours ou aucun prêt à valider.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 const api = "http://localhost/tp-flightphp-crud1/ws";
@@ -53,7 +51,7 @@ function ajax(method, url, data, callback) {
 
 // Charger les prêts non validés
 function chargerPretsNonValides() {
-  ajax("GET", "/prets/non-valides", null, data => {
+  ajax("GET", "/prets/valides", null, data => {
     const tbody = document.getElementById("liste-prets");
     tbody.innerHTML = "";
 
@@ -72,8 +70,7 @@ function chargerPretsNonValides() {
         <td>${p.duree_demandee} mois</td>
         <td>${p.motif_demande || ""}</td>
         <td>
-        <a href="/tp-flightphp-crud1/ws/prets/valider/${p.id}">✅ Valider</a>
-        <a href="/tp-flightphp-crud1/ws/prets/rejeter/${p.id}">❌ Rejeter</a>
+        <a href="/tp-flightphp-crud1/ws/pret/${p.id}/pdf">✅ Generer pdf</a>
         </td>
 
       `;
@@ -109,5 +106,5 @@ function rejeter(id) {
 chargerPretsNonValides();
 </script>
 
-</body>
-</html>
+
+<?php include('template_footer.php'); ?>

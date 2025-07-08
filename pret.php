@@ -1,65 +1,70 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Gestion des Prêts</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h1 { margin-bottom: 10px; }
-    section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-    label { display: block; margin-top: 10px; }
-    input, select, textarea { width: 100%; padding: 6px; margin-top: 3px; }
-    button { margin-top: 10px; padding: 8px 15px; cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background-color: #f0f0f0; }
-  </style>
-</head>
-<body>
+ 
+<?php include('template_header.php'); ?>
+<h1 class="text-center my-4">Gestion des Prêts</h1>
 
-<h1>Gestion des Prêts</h1>
+<section class="container mb-5">
+  <form id="form-pret" class="row g-3">
+    <input type="hidden" id="id">
+    <input type="hidden" id="numero_pret">
 
-<section>
-  <input type="hidden" id="id">
-  <input type="hidden" id="numero_pret">
+    <div class="col-md-6">
+      <label for="id_client" class="form-label">Client</label>
+      <select id="id_client" class="form-select" required></select>
+    </div>
 
-  <label for="id_client">Client</label>
-  <select id="id_client"></select>
+    <div class="col-md-6">
+      <label for="id_type_pret" class="form-label">Type de prêt</label>
+      <select id="id_type_pret" class="form-select" required></select>
+    </div>
 
-  <label for="id_type_pret">Type de prêt</label>
-  <select id="id_type_pret"></select>
+    <div class="col-md-6">
+      <label for="id_admin_createur" class="form-label">Administrateur créateur</label>
+      <select id="id_admin_createur" class="form-select" required></select>
+    </div>
 
-  <label for="id_admin_createur">Administrateur créateur</label>
-  <select id="id_admin_createur"></select>
+    <div class="col-md-6">
+      <label for="montant_demande" class="form-label">Montant demandé</label>
+      <input type="number" id="montant_demande" class="form-control" min="0" step="0.01" required>
+    </div>
 
-  <label for="montant_demande">Montant demandé</label>
-  <input type="number" id="montant_demande" min="0" step="0.01">
+    <div class="col-md-6">
+      <label for="duree_demandee" class="form-label">Durée demandée (mois)</label>
+      <input type="number" id="duree_demandee" class="form-control" min="1" step="1" required>
+    </div>
 
-  <label for="duree_demandee">Durée demandée (mois)</label>
-  <input type="number" id="duree_demandee" min="1" step="1">
+    <div class="col-12">
+      <label for="motif_demande" class="form-label">Motif de la demande</label>
+      <textarea id="motif_demande" class="form-control" rows="3" placeholder="Motif de la demande"></textarea>
+    </div>
 
-  <label for="motif_demande">Motif de la demande</label>
-  <textarea id="motif_demande" rows="3"></textarea>
+    <div class="col-12 text-end">
+      <button type="button" onclick="ajouterOuModifier()" class="btn btn-primary">Ajouter / Modifier</button>
+    </div>
+  </form>
+</section>
+<a href="type_pret.php"> Ajout Type Pret </a>
 
-  <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
+<section class="container">
+  <h3 class="mb-3">Liste des prêts </h3>
+  <div class="table-responsive">
+    <table id="table-prets" class="table table-bordered table-striped text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Client</th>
+          <th>Type</th>
+          <th>Montant demandé</th>
+          <th>Durée</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Les données seront ajoutées ici dynamiquement -->
+      </tbody>
+    </table>
+  </div>
 </section>
 
-<section>
-  <h3>Liste des prêts</h3>
-  <table id="table-prets">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Client</th>
-        <th>Type</th>
-        <th>Montant demandé</th>
-        <th>Durée</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</section>
 
 <script>
 const api = "http://localhost/tp-flightphp-crud1/ws";
@@ -193,6 +198,5 @@ remplirSelect("id_admin_createur", "admins", "nom");
 chargerPrets();
 
 </script>
-
-</body>
-</html>
+ 
+<?php include('template_footer.php'); ?>
