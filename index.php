@@ -1,3 +1,24 @@
+<?php
+$apiUrl = "http://localhost/tp-flightphp-crud1/ws/etablissements";
+$response = file_get_contents($apiUrl);
+
+// Vérifie si on a bien une réponse JSON
+if ($response !== false) {
+    $data = json_decode($response, true);
+
+    // Si c’est une liste, on prend le premier établissement :
+    if (is_array($data) && count($data) > 0) {
+        $currMontant = $data[0]['curr_montant'];  // Banque Centrale
+        $banque  = $data[0]['nom'].' , '.$data[0]['adresse'];                
+    } else {
+        $currMontant = 0;
+        $banque  = "" ; 
+    }
+} else {
+    $currMontant = 0;
+    $banque  = "" ; 
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -308,9 +329,7 @@
             animation: spin 1s linear infinite;
             margin: 20px auto;
         }
- body {
-  padding-top: 80px !important;
-}   
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -338,16 +357,20 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#dashboard">Dashboard</a>
+                        <a class="nav-link" href="index.php">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#accounts">Comptes</a>
+                        <a class="nav-link" href="compte_bancaire.php">Comptes</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#transactions">Transactions</a>
                     </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="gestion_remboursement.php">Remboursement</a>
+                    </li>
+
                     <li class="nav-item">
-                        <a class="nav-link" href="#services">Services</a>
+                        <a class="nav-link" href="interest_report.php">Interest</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#profile"><i class="fas fa-user me-1"></i>Profil</a>
@@ -356,25 +379,203 @@
             </div>
         </div>
     </nav>
-<!-- Services Section -->
-<section id="services" class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <?php
-                // Inclusion dynamique d’un fichier
-                $inclusion = isset($_GET['include']) ? basename($_GET['include']) : 'index';
-                $chemin = "{$inclusion}.html";
 
-                if (file_exists($chemin)) {
-                    include($chemin);
-                } else {
-                    echo "<div class='alert alert-warning'>Contenu non trouvé : {$inclusion}</div>";
-                }
-            ?>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content animate-fade-in">
+                    <h1 class="hero-title">Bienvenue, <span style="color: var(--primary-gold);">Jean Dupont</span></h1>
+                    <p class="hero-subtitle">Gérez vos finances avec élégance et sécurité</p>
+                    <button class="btn btn-gold">Voir mes comptes</button>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="stats-card">
+                        <div class="stats-number"><?= $currMontant ?> Ariary </div>
+                        <div class="stats-label">Solde Total chez <?= $banque ?> </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</section>
-   
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="py-5">
+        <div class="container">
+            <h2 class="section-title">Tableau de Bord</h2>
+            
+            <div class="row">
+                <!-- Account Balance -->
+                <div class="col-lg-8 mb-4">
+                    <div class="dashboard-card">
+                        <div class="card-header-gold">
+                            <h4 class="mb-0"><i class="fas fa-wallet me-2"></i>Mes Comptes</h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <h6 class="text-muted">Compte Courant</h6>
+                                        <div class="balance-display">€ 12,450.75</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <h6 class="text-muted">Compte Épargne</h6>
+                                        <div class="balance-display">€ 32,779.75</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-md-4">
+                                    <div class="stats-card">
+                                        <div class="stats-number">+€ 2,340</div>
+                                        <div class="stats-label">Ce mois</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="stats-card">
+                                        <div class="stats-number">-€ 1,890</div>
+                                        <div class="stats-label">Dépenses</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="stats-card">
+                                        <div class="stats-number">23</div>
+                                        <div class="stats-label">Transactions</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="col-lg-4 mb-4">
+                    <div class="dashboard-card">
+                        <div class="card-header-dark">
+                            <h4 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions Rapides</h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <a href="#" class="quick-action-btn">
+                                <i class="fas fa-exchange-alt"></i>
+                                <div>Virement</div>
+                            </a>
+                            <a href="#" class="quick-action-btn">
+                                <i class="fas fa-credit-card"></i>
+                                <div>Paiement</div>
+                            </a>
+                            <a href="#" class="quick-action-btn">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                <div>Factures</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="dashboard-card">
+                        <div class="card-header-gold">
+                            <h4 class="mb-0"><i class="fas fa-history me-2"></i>Transactions Récentes</h4>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="transaction-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Salaire - Entreprise XYZ</h6>
+                                        <small class="text-muted">8 Juillet 2025</small>
+                                    </div>
+                                    <div class="transaction-amount transaction-positive">+€ 3,200.00</div>
+                                </div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Supermarché Carrefour</h6>
+                                        <small class="text-muted">7 Juillet 2025</small>
+                                    </div>
+                                    <div class="transaction-amount transaction-negative">-€ 87.50</div>
+                                </div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Virement vers Épargne</h6>
+                                        <small class="text-muted">6 Juillet 2025</small>
+                                    </div>
+                                    <div class="transaction-amount transaction-negative">-€ 500.00</div>
+                                </div>
+                            </div>
+                            <div class="transaction-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Remboursement Assurance</h6>
+                                        <small class="text-muted">5 Juillet 2025</small>
+                                    </div>
+                                    <div class="transaction-amount transaction-positive">+€ 245.00</div>
+                                </div>
+                            </div>
+                            <div class="transaction-item border-bottom-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Facture Électricité</h6>
+                                        <small class="text-muted">4 Juillet 2025</small>
+                                    </div>
+                                    <div class="transaction-amount transaction-negative">-€ 125.30</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="section-title">Nos Services</h2>
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="dashboard-card text-center">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--primary-gold);"></i>
+                            </div>
+                            <h4>Sécurité Maximale</h4>
+                            <p class="text-muted">Vos données sont protégées par un chiffrement de niveau bancaire.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="dashboard-card text-center">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-mobile-alt" style="font-size: 3rem; color: var(--primary-gold);"></i>
+                            </div>
+                            <h4>Application Mobile</h4>
+                            <p class="text-muted">Gérez vos comptes depuis votre smartphone, où que vous soyez.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="dashboard-card text-center">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="fas fa-headset" style="font-size: 3rem; color: var(--primary-gold);"></i>
+                            </div>
+                            <h4>Support 24/7</h4>
+                            <p class="text-muted">Notre équipe est disponible 24h/24 pour vous accompagner.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -407,6 +608,32 @@
             </div>
         </div>
     </footer>
+
+<script>
+    const apiBase = "http://localhost/tp-flightphp-crud1/ws";
+
+    async function chargerSoldeTotal() {
+        try {
+            const response = await fetch(`${apiBase}/api/etablissements/solde-total`);
+            const data = await response.json();
+
+            // Affiche dans .stats-number ou autre élément
+            const el = document.querySelector('.stats-number');
+            if (el) {
+                el.innerText = `€ ${parseFloat(data.solde_total).toFixed(2)}`;
+            }
+        } catch (error) {
+            console.error("Erreur lors du chargement du solde total :", error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        chargerSoldeTotal();
+    });
+</script>
+
+
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>

@@ -1,40 +1,49 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Gestion des comptes bancaires</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, select, button { margin: 5px; padding: 5px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    .error { color: red; }
-  </style>
-</head>
-<body>
+ <?php include('template_header.php'); ?>
 
-  <h1>Gestion des comptes bancaires</h1>
+<h1 class="my-4 text-center text-primary">Gestion des comptes bancaires</h1>
 
-  <div>
+<div class="container mb-4">
+  <form id="form-compte" class="row g-3">
     <input type="hidden" id="id">
-    <select id="id_client" required>
-      <option value="">Sélectionner un client</option>
-    </select>
-    <input type="number" id="solde_compte" placeholder="Solde initial" step="0.01" required>
-    <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
-    <div id="error-message" class="error"></div>
-  </div>
 
-  <table id="table-comptes-bancaires">
-    <thead>
+    <div class="col-md-6">
+      <label for="id_client" class="form-label">Client</label>
+      <select id="id_client" class="form-select" required>
+        <option value="">Sélectionner un client</option>
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label for="solde_compte" class="form-label">Solde initial (€)</label>
+      <input type="number" id="solde_compte" class="form-control" placeholder="Ex: 500.00" step="0.01" required>
+    </div>
+
+    <div class="col-12">
+      <button type="button" onclick="ajouterOuModifier()" class="btn btn-primary w-100">
+        Ajouter / Modifier
+      </button>
+    </div>
+
+    <div id="error-message" class="text-danger text-center"></div>
+  </form>
+</div>
+
+<div class="container">
+  <table id="table-comptes-bancaires" class="table table-bordered table-striped align-middle">
+    <thead class="table-dark">
       <tr>
-        <th>ID</th><th>Numéro de compte</th><th>Client</th><th>Solde</th><th>Dernière modification</th><th>Actions</th>
+        <th>ID</th>
+        <th>Numéro de compte</th>
+        <th>Client</th>
+        <th>Solde (€)</th>
+        <th>Dernière modification</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
-
+</div>
+ 
   <script>
     const apiBase = "http://localhost/tp-flightphp-crud1/ws";
 
@@ -161,6 +170,4 @@
     chargerClients();
     chargerComptesBancaires();
   </script>
-
-</body>
-</html>
+ <?php include('template_footer.php'); ?>

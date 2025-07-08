@@ -1,47 +1,45 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <title>Gestion des Remboursements (Annuité Constante)</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h1 { margin-bottom: 10px; }
-    section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-    label { display: block; margin-top: 10px; }
-    input, select { width: 100%; padding: 6px; margin-top: 3px; }
-    button { margin-top: 10px; padding: 8px 15px; cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background-color: #f0f0f0; }
-    .error { color: red; }
-    #details-pret p { margin: 5px 0; }
-  </style>
-</head>
-<body>
+<?php include('template_header.php'); ?>
+<h1 class="text-center text-primary my-4">Gestion des Remboursements (Annuité Constante)</h1>
 
-<h1>Gestion des Remboursements (Annuité Constante)</h1>
+<div class="container mb-5">
+  <form id="form-remboursement" class="row g-3">
+    
+    <div class="col-md-6">
+      <label for="id_pret" class="form-label">Prêt</label>
+      <select id="id_pret" class="form-select" onchange="chargerDetailsPret()" required>
+        <option value="">-- Sélectionner un prêt --</option>
+      </select>
+    </div>
 
-<section id="form-section">
-  <label for="id_pret">Prêt</label>
-  <select id="id_pret" onchange="chargerDetailsPret()">
-    <option value="">-- Sélectionner un prêt --</option>
-  </select>
+    <div class="col-md-6">
+      <label for="id_admin" class="form-label">Administrateur</label>
+      <select id="id_admin" class="form-select" required>
+        <option value="">-- Sélectionner un administrateur --</option>
+      </select>
+    </div>
 
-  <div id="details-pret" style="margin-top: 10px;"></div>
+    <div class="col-md-6">
+      <label for="date_valeur" class="form-label">Date de valeur</label>
+      <input type="date" id="date_valeur" class="form-control" required>
+    </div>
 
-  <label for="id_admin">Administrateur</label>
-  <select id="id_admin"></select>
+    <div class="col-12">
+      <button type="button" onclick="genererPlanRemboursement()" class="btn btn-success w-100">
+        Générer Plan de Remboursement
+      </button>
+    </div>
 
-  <label for="date_valeur">Date de valeur</label>
-  <input type="date" id="date_valeur">
+    <div class="col-12">
+      <div id="details-pret" class="alert alert-secondary" role="alert" style="display: none;"></div>
+    </div>
+  </form>
+</div>
 
-  <button onclick="genererPlanRemboursement()">Générer Plan de Remboursement</button>
-</section>
-
-<section>
-  <h3>Plan de Remboursement</h3>
-  <table id="table-remboursements">
-    <thead>
+<!-- Plan de remboursement -->
+<div class="container">
+  <h3 class="mb-4 text-center">Plan de Remboursement</h3>
+  <table id="table-remboursements" class="table table-bordered table-hover text-center align-middle">
+    <thead class="table-dark">
       <tr>
         <th>Période</th>
         <th>Annuité (€)</th>
@@ -53,10 +51,12 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td colspan="7">Sélectionnez un prêt et générez le plan de remboursement.</td></tr>
+      <tr>
+        <td colspan="7" class="text-muted">Sélectionnez un prêt et générez le plan de remboursement.</td>
+      </tr>
     </tbody>
   </table>
-</section>
+</div>
 
 <script>
 const api = "http://localhost/tp-flightphp-crud1/ws";
@@ -210,5 +210,4 @@ remplirSelect("id_pret", "prets");
 remplirSelect("id_admin", "admins");
 </script>
 
-</body>
-</html>
+<?php include('template_footer.php'); ?>

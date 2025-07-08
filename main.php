@@ -1,46 +1,55 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Gestion des établissements financiers</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, button { margin: 5px; padding: 5px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    .error { color: red; }
-  </style>
-</head>
-<body>
+<?php include('template_header.php'); ?>
 
-  <h1>Gestion des établissements financiers</h1>
+ <h1 class="mb-4">Gestion des établissements financiers</h1>
 
-  <div>
-    <input type="hidden" id="id">
-    <input type="text" id="nom" placeholder="Nom">
-    <input type="text" id="adresse" placeholder="Adresse">
-    <input type="text" id="telephone" placeholder="Téléphone">
-    <input type="email" id="email" placeholder="Email">
-    <input type="number" id="curr_montant" placeholder="Montant actuel" readonly>
-    <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
-    <div id="error-message" class="error"></div>
-  </div>
+<div class="mb-4">
+  <form id="form-etablissement" onsubmit="event.preventDefault(); ajouterOuModifier();">
+    <input type="hidden" id="id" name="id">
 
-  <table id="table-etablissements">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nom</th>
-        <th>Adresse</th>
-        <th>Téléphone</th>
-        <th>Email</th>
-        <th>Montant</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <div class="mb-3">
+      <label for="nom" class="form-label">Nom</label>
+      <input type="text" class="form-control" id="nom" name="nom" placeholder="Nom" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="adresse" class="form-label">Adresse</label>
+      <input type="text" class="form-control" id="adresse" name="adresse" placeholder="Adresse">
+    </div>
+
+    <div class="mb-3">
+      <label for="telephone" class="form-label">Téléphone</label>
+      <input type="text" class="form-control" id="telephone" name="telephone" placeholder="Téléphone">
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" class="form-control" id="email" name="email" placeholder="Email">
+    </div>
+
+    <div class="mb-3">
+      <label for="curr_montant" class="form-label">Montant actuel</label>
+      <input type="number" class="form-control" id="curr_montant" name="curr_montant" placeholder="Montant actuel" readonly>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Ajouter / Modifier</button>
+    <div id="error-message" class="text-danger mt-2"></div>
+  </form>
+</div>
+
+<table id="table-etablissements" class="table table-bordered table-striped">
+  <thead class="table-dark">
+    <tr>
+      <th>ID</th>
+      <th>Nom</th>
+      <th>Adresse</th>
+      <th>Téléphone</th>
+      <th>Email</th>
+      <th>Montant</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
   <script>
     const apiBase = "http://localhost/tp-flightphp-crud1/ws";
@@ -167,5 +176,6 @@
     chargerEtablissements();
   </script>
 
-</body>
-</html>
+
+
+<?php include('template_footer.php'); ?>
