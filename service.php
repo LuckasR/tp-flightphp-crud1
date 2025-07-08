@@ -7,10 +7,12 @@
     <ul class="list-unstyled">
         <li><a href="client.php"> Gestion Client</a></li>
         <li><a href="pret.php">Gestion pret</a></li>
-        <li><a href="#transactions">Transactions</a></li>
-        <li><a href="gestion_remboursement.php">Remboursement</a></li>
-        <li><a href="interest_report.php">Interest</a></li>
-        <li><a href="#profile"><i class="fas fa-user me-1"></i>Profil</a></li>
+        <li><a href="mouvementEtablissement.php">Gestion mouvement etablissement</a></li>
+        <li><a href="main.php">Gestion etablissement</a></li>
+        <li><a href="main.php">Gestion Paiement</a></li>
+
+
+      
     </ul>
 </div>
 
