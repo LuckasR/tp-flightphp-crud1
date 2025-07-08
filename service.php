@@ -12,6 +12,7 @@
         <li><a href="main.php">Gestion Paiement</a></li>
         <li><a href="assurence.php">Gestion Payment_Assurence</a></li>
         <li><a href="montant_disponible.php">montant disponible etablissement</a></li>
+        <li><a href="simulation_pret.php">Gestion Simulation</a></li>
 
 
 
