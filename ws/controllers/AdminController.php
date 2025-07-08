@@ -26,4 +26,7 @@ class AdminController {
         Admin::delete($id);
         Flight::json(['message' => 'Admin supprimé']);
     }
+
+ 
+
 }

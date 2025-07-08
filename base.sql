@@ -170,7 +170,7 @@ CREATE TABLE pret (
     FOREIGN KEY (id_admin_validateur) REFERENCES admin(id),
     FOREIGN KEY (id_statut) REFERENCES statut_pret(id)
 );
-
+ 
 CREATE TABLE paiement (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_pret INT NOT NULL,

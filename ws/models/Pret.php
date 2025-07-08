@@ -39,7 +39,7 @@ public static function validerPret($id) {
     $idAdminValidateur = isset($put_vars['id_admin_validateur']) ? $put_vars['id_admin_validateur'] : null;
 
     // Calculs
-    $montantTotal = $montantAccorde + $fraisDossier + $fraisAssurance;
+    $montantTotal = $montantAccorde + $fraisDossier + ($fraisAssurance * $montantAccorde / 100);
     $mensualite = $dureeAccordee > 0 ? $montantTotal / $dureeAccordee : 0;
     $montantRestant = $montantTotal;
 
@@ -60,7 +60,8 @@ public static function validerPret($id) {
             montant_restant = :montant_restant, 
             date_decision = NOW(),
             date_premiere_echeance = :date_premiere_echeance,
-            date_derniere_echeance = :date_derniere_echeance
+            date_derniere_echeance = :date_derniere_echeance , 
+            id_statut = :id_statut
         WHERE id = :id
     ");
 
@@ -76,6 +77,7 @@ public static function validerPret($id) {
         ':montant_restant' => $montantRestant,
         ':date_premiere_echeance' => $datePremiereEcheance,
         ':date_derniere_echeance' => $dateDerniereEcheance,
+        ':id_statut' => 3, // 3 = Validé
         ':id' => $id
     ]);
 
