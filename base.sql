@@ -68,47 +68,47 @@ CREATE TABLE transaction_compte (
     FOREIGN KEY (id_type) REFERENCES type_categorie(id)
 );
 
-CREATE TABLE type_mouvement (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_type INT NOT NULL,
-    nom VARCHAR(100) NOT NULL UNIQUE,
-    FOREIGN KEY (id_type) REFERENCES type_categorie(id)
-);
+    CREATE TABLE type_mouvement (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        id_type INT NOT NULL,
+        nom VARCHAR(100) NOT NULL UNIQUE,
+        FOREIGN KEY (id_type) REFERENCES type_categorie(id)
+    );
 
-CREATE TABLE mouvement_etablissement (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_admin INT,
-    id_type INT,
-    id_client INT,
-    montant DECIMAL(15,2) NOT NULL,
-    description TEXT,
-    reference_externe VARCHAR(100),
-    date_mouvement DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_admin) REFERENCES admin(id),
-    FOREIGN KEY (id_type) REFERENCES type_mouvement(id),
-    FOREIGN KEY (id_client) REFERENCES client(id)
-);
+    CREATE TABLE mouvement_etablissement (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        id_admin INT,
+        id_type INT,
+        id_client INT,
+        montant DECIMAL(15,2) NOT NULL,
+        description TEXT,
+        reference_externe VARCHAR(100),
+        date_mouvement DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (id_admin) REFERENCES admin(id),
+        FOREIGN KEY (id_type) REFERENCES type_mouvement(id),
+        FOREIGN KEY (id_client) REFERENCES client(id)
+    );
 
-CREATE TABLE type_pret (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT,
-    revenu_minimum DECIMAL(15,2),
-    age_minimum INT DEFAULT 18,
-    age_maximum INT DEFAULT 65,
-    montant_min DECIMAL(15,2) NOT NULL,
-    montant_max DECIMAL(15,2) NOT NULL,
-    duree_min INT NOT NULL,
-    duree_max INT NOT NULL,
-    taux_interet DECIMAL(5,2) NOT NULL,
-    taux_assur  ance int default  , 
-    taux_interet_retard DECIMAL(5,2) DEFAULT 2.0,
-    frais_dossier_fixe DECIMAL(15,2) DEFAULT 0,
-    documents_requis TEXT,
-    actif BOOLEAN DEFAULT TRUE,
-    date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    date_modification DATETIME ON UPDATE CURRENT_TIMESTAMP
-);
+    CREATE TABLE type_pret (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nom VARCHAR(100) NOT NULL UNIQUE,
+        description TEXT,
+        revenu_minimum DECIMAL(15,2),
+        age_minimum INT DEFAULT 18,
+        age_maximum INT DEFAULT 65,
+        montant_min DECIMAL(15,2) NOT NULL,
+        montant_max DECIMAL(15,2) NOT NULL,
+        duree_min INT NOT NULL,
+        duree_max INT NOT NULL,
+        taux_interet DECIMAL(5,2) NOT NULL,
+        taux_assurance int default 0 , 
+        taux_interet_retard DECIMAL(5,2) DEFAULT 2.0,
+        frais_dossier_fixe DECIMAL(15,2) DEFAULT 0,
+        documents_requis TEXT,
+        actif BOOLEAN DEFAULT TRUE,
+        date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+        date_modification DATETIME ON UPDATE CURRENT_TIMESTAMP
+    );
 
 
 
@@ -204,56 +204,58 @@ WHERE
     AND (p.date_derniere_echeance IS NOT NULL AND p.date_derniere_echeance >= '2026-07-30') ; 
 
 
-create table numero_pret_seq (
-    id INT PRIMARY KEY AUTO_INCREMENT
-) ; 
+    create table numero_pret_seq (
+        id INT PRIMARY KEY AUTO_INCREMENT
+    ) ; 
 
 
-CREATE TABLE simulations_pret (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    CREATE TABLE simulations_pret (
+        id INT PRIMARY KEY AUTO_INCREMENT,
 
-    -- Informations générales
-    numero_simulation VARCHAR(50) UNIQUE NOT NULL,
-    id_client INT NOT NULL,
-    id_type_pret INT NOT NULL,
+        -- Informations générales
+        numero_simulation VARCHAR(50) UNIQUE NOT NULL,
+        id_client INT NOT NULL,
+        id_type_pret INT NOT NULL,
 
-    -- Données du prêt simulé
-    montant_demande DECIMAL(15,2) NOT NULL,
-    duree_demandee INT NOT NULL, -- en mois
-    taux_applique DECIMAL(5,2) NOT NULL, -- % annuel
-    taux_assurance DECIMAL(5,2) NOT NULL, -- % annuel
+        -- Données du prêt simulé
+        montant_demande DECIMAL(15,2) NOT NULL,
+        duree_demandee INT NOT NULL, -- en mois
+        taux_applique DECIMAL(5,2) NOT NULL, -- % annuel
+        taux_assurance DECIMAL(5,2) NOT NULL, -- % annuel
 
-    -- Résultats de la simulation
-    mensualite_capital DECIMAL(15,2) NOT NULL,
-    mensualite_assurance DECIMAL(15,2) NOT NULL,
-    mensualite_totale DECIMAL(15,2) NOT NULL,
-    montant_total_assurance DECIMAL(15,2) NOT NULL,
-    montant_total_pret DECIMAL(15,2) NOT NULL,
+        -- Résultats de la simulation
+        mensualite_capital DECIMAL(15,2) NOT NULL,
+        mensualite_assurance DECIMAL(15,2) NOT NULL,
+        mensualite_totale DECIMAL(15,2) NOT NULL,
+        montant_total_assurance DECIMAL(15,2) NOT NULL,
+        montant_total_pret DECIMAL(15,2) NOT NULL,
 
-    -- Autres frais éventuels
-    frais_dossier DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+        -- Autres frais éventuels
+        frais_dossier DECIMAL(15,2) NOT NULL DEFAULT 0.00,
 
-    -- Gestion de la simulation
-    date_simulation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    date_expiration DATE, -- par exemple simulation valable 30 jours
-    statut ENUM('active', 'convertie', 'expiree') DEFAULT 'active',
-    notes TEXT,
+        -- Gestion de la simulation
+        date_simulation DATETIME DEFAULT CURRENT_TIMESTAMP,
+        date_expiration DATE, -- par exemple simulation valable 30 jours
+        statut ENUM('active', 'convertie', 'expiree') DEFAULT 'active',
+        notes TEXT,
 
-    -- Clés étrangères
-    FOREIGN KEY (id_client) REFERENCES client(id),
-    FOREIGN KEY (id_type_pret) REFERENCES type_pret(id) 
-);
+        -- Clés étrangères
+        FOREIGN KEY (id_client) REFERENCES client(id),
+        FOREIGN KEY (id_type_pret) REFERENCES type_pret(id) 
+    );
 
 
--- 2. Table pour les comparaisons de simulations
-CREATE TABLE comparaisons_simulation (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    id_simulation_1 INT NOT NULL,
-    id_simulation_2 INT NOT NULL,
-    date_comparaison DATETIME DEFAULT CURRENT_TIMESTAMP,
-    id_client INT NOT NULL,
-    FOREIGN KEY (id_simulation_1) REFERENCES simulations_pret(id),
-    FOREIGN KEY (id_simulation_2) REFERENCES simulations_pret(id),
-    FOREIGN KEY (id_client) REFERENCES client(id),
-    INDEX idx_client_comparaison (id_client)
-);
+    -- 2. Table pour les comparaisons de simulations
+    CREATE TABLE comparaisons_simulation (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        id_simulation_1 INT NOT NULL,
+        id_simulation_2 INT NOT NULL,
+        date_comparaison DATETIME DEFAULT CURRENT_TIMESTAMP,
+        id_client INT NOT NULL,
+        FOREIGN KEY (id_simulation_1) REFERENCES simulations_pret(id),
+        FOREIGN KEY (id_simulation_2) REFERENCES simulations_pret(id),
+        FOREIGN KEY (id_client) REFERENCES client(id),
+        INDEX idx_client_comparaison (id_client)
+    );
+
+ 
