@@ -201,51 +201,62 @@ WHERE
     AND (p.date_derniere_echeance IS NOT NULL AND p.date_derniere_echeance >= '2026-07-30') ; 
 
 
-
-create table pret_simulation (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    numero_simulation VARCHAR(100) UNIQUE,
-    id_client INT,
-    id_type_pret INT,
-    montant_demande DECIMAL(15,2),
-    duree_demandee INT,
-    taux_interet DECIMAL(5,2),
-    taux_assurance DECIMAL(5,2),
-    date_simulation DATE DEFAULT CURRENT_DATE,
-    mensualite DECIMAL(15,2),
-    mensualite_totale DECIMAL(15,2),
-    total_remboursement DECIMAL(15,2),
-    is_comparaison BOOLEAN DEFAULT false
-);
-
+create table numero_pret_seq (
+    id INT PRIMARY KEY AUTO_INCREMENT
+) ; 
 
 
 CREATE TABLE simulations_pret (
     id INT PRIMARY KEY AUTO_INCREMENT,
+
+    -- Informations générales
     numero_simulation VARCHAR(50) UNIQUE NOT NULL,
     id_client INT NOT NULL,
     id_type_pret INT NOT NULL,
+
+    -- Données du prêt simulé
     montant_demande DECIMAL(15,2) NOT NULL,
-    duree_demandee INT NOT NULL,
-    taux_applique DECIMAL(5,2) NOT NULL,
-    taux_assurance DECIMAL(5,2) NOT NULL,
+    duree_demandee INT NOT NULL, -- en mois
+    taux_applique DECIMAL(5,2) NOT NULL, -- % annuel
+    taux_assurance DECIMAL(5,2) NOT NULL, -- % annuel
+
+    -- Résultats de la simulation
     mensualite_capital DECIMAL(15,2) NOT NULL,
     mensualite_assurance DECIMAL(15,2) NOT NULL,
     mensualite_totale DECIMAL(15,2) NOT NULL,
     montant_total_assurance DECIMAL(15,2) NOT NULL,
     montant_total_pret DECIMAL(15,2) NOT NULL,
-    frais_dossier DECIMAL(15,2) NOT NULL,
+
+    -- Autres frais éventuels
+    frais_dossier DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+
+    -- Gestion de la simulation
     date_simulation DATETIME DEFAULT CURRENT_TIMESTAMP,
+    date_expiration DATE, -- par exemple simulation valable 30 jours
     statut ENUM('active', 'convertie', 'expiree') DEFAULT 'active',
     notes TEXT,
-    date_expiration DATE,
+
+    -- Clés étrangères
     FOREIGN KEY (id_client) REFERENCES client(id),
     FOREIGN KEY (id_type_pret) REFERENCES type_pret(id),
+
+    -- Index pour accélérer les recherches
     INDEX idx_client_simulation (id_client),
     INDEX idx_date_simulation (date_simulation),
     INDEX idx_statut (statut)
 );
 
-create table numero_pret_seq (
-    id INT PRIMARY KEY AUTO_INCREMENT
-) ; 
+
+
+-- 2. Table pour les comparaisons de simulations
+CREATE TABLE comparaisons_simulation (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_simulation_1 INT NOT NULL,
+    id_simulation_2 INT NOT NULL,
+    date_comparaison DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id_client INT NOT NULL,
+    FOREIGN KEY (id_simulation_1) REFERENCES simulations_pret(id),
+    FOREIGN KEY (id_simulation_2) REFERENCES simulations_pret(id),
+    FOREIGN KEY (id_client) REFERENCES client(id),
+    INDEX idx_client_comparaison (id_client)
+);
