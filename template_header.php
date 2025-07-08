@@ -353,7 +353,10 @@
                         <a class="nav-link" href="interest_report.php">Interest</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#services">Services</a>
+                        <a class="nav-link" href="service.php">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="prets_non_valides.php">Pret</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#profile"><i class="fas fa-user me-1"></i>Profil</a>

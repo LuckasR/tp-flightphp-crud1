@@ -5,6 +5,8 @@ Flight::route('GET /prets', ['PretController', 'getAll']);
 
 
 Flight::route('GET /prets/non-valides', ['PretController', 'getAllNotValidate']);
+Flight::route('GET /prets/valides', ['PretController', 'getAllValidate']);
+
 // Flight::route('PUT /prets/valider/@id', ['PretController', 'validerPret']);
 // Flight::route('PUT /prets/rejeter/@id', ['PretController', 'rejeterPret']);
 

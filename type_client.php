@@ -1,37 +1,52 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Gestion des types de clients</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, button { margin: 5px; padding: 5px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    .error { color: red; }
-  </style>
-</head>
-<body>
+ <?php include('template_header.php'); ?>
 
-  <h1>Gestion des types de clients</h1>
 
-  <div>
+<h1 class="text-center my-4">Gestion des types de clients</h1>
+
+<div class="container mb-4">
+  <form id="form-type-client" class="row g-3 align-items-end">
     <input type="hidden" id="id">
-    <input type="text" id="nom" placeholder="Nom" required>
-    <input type="text" id="description" placeholder="Description">
-    <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
-    <div id="error-message" class="error"></div>
-  </div>
 
-  <table id="table-types-clients">
-    <thead>
-      <tr>
-        <th>ID</th><th>Nom</th><th>Description</th><th>Date Création</th><th>Date Modification</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <div class="col-md-5">
+      <label for="nom" class="form-label">Nom</label>
+      <input type="text" id="nom" class="form-control" placeholder="Nom" required>
+    </div>
+
+    <div class="col-md-5">
+      <label for="description" class="form-label">Description</label>
+      <input type="text" id="description" class="form-control" placeholder="Description">
+    </div>
+
+    <div class="col-md-2 text-end">
+      <button type="button" onclick="ajouterOuModifier()" class="btn btn-primary">Ajouter / Modifier</button>
+    </div>
+
+    <div class="col-12">
+      <div id="error-message" class="text-danger"></div>
+    </div>
+  </form>
+</div>
+
+<div class="container">
+  <div class="table-responsive">
+    <table id="table-types-clients" class="table table-bordered table-striped text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Date Création</th>
+          <th>Date Modification</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Les données seront insérées dynamiquement ici -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
 
   <script>
     const apiBase = "http://localhost/tp-flightphp-crud1/ws";
@@ -139,5 +154,5 @@
     chargerTypesClients();
   </script>
 
-</body>
-</html>
+
+<?php include('template_footer.php'); ?>

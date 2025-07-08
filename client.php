@@ -1,41 +1,62 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Gestion des clients</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, select, button { margin: 5px; padding: 5px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    .error { color: red; }
-  </style>
-</head>
-<body>
+ <?php include('template_header.php'); ?>
+<h1 class="text-center my-4">Gestion des clients</h1>
 
-  <h1>Gestion des clients</h1>
-
-  <div>
+<div class="container mb-4">
+  <form id="form-client" class="row g-3 align-items-end">
     <input type="hidden" id="id">
-    <input type="text" id="nom" placeholder="Nom">
-    <input type="email" id="email" placeholder="Email">
-    <input type="date" id="date_naissance" placeholder="Date de naissance">
-    <select id="id_type_client" required>
-      <option value="">Sélectionner un type de client</option>
-    </select>
-    <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
-    <div id="error-message" class="error"></div>
-  </div>
 
-  <table id="table-clients">
-    <thead>
-      <tr>
-        <th>ID</th><th>Nom</th><th>Email</th><th>Date de naissance</th><th>Type de client</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <div class="col-md-3">
+      <label for="nom" class="form-label">Nom</label>
+      <input type="text" id="nom" class="form-control" placeholder="Nom">
+    </div>
+
+    <div class="col-md-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" id="email" class="form-control" placeholder="Email">
+    </div>
+
+    <div class="col-md-3">
+      <label for="date_naissance" class="form-label">Date de naissance</label>
+      <input type="date" id="date_naissance" class="form-control" placeholder="Date de naissance">
+    </div>
+
+    <div class="col-md-3">
+      <label for="id_type_client" class="form-label">Type de client</label>
+      <select id="id_type_client" class="form-select" required>
+        <option value="">Sélectionner un type de client</option>
+        <!-- Options à remplir dynamiquement -->
+      </select>
+    </div>
+
+    <div class="col-12 text-end">
+      <button type="button" onclick="ajouterOuModifier()" class="btn btn-primary">Ajouter / Modifier</button>
+    </div>
+
+    <div class="col-12">
+      <div id="error-message" class="text-danger"></div>
+    </div>
+  </form>
+</div>
+<a href="type_client.php"> Ajout Type Client</a>
+<div class="container">
+  <div class="table-responsive">
+    <table id="table-clients" class="table table-bordered table-striped align-middle text-center">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Date de naissance</th>
+          <th>Type de client</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Données à remplir dynamiquement -->
+      </tbody>
+    </table>
+  </div>
+</div>
 
   <script>
     const apiBase = "http://localhost/tp-flightphp-crud1/ws";
@@ -170,5 +191,6 @@
     chargerClients();
   </script>
 
-</body>
-</html>
+ 
+
+<?php include('template_footer.php'); ?>

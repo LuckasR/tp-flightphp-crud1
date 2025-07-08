@@ -15,6 +15,15 @@ class Pret {
         $stmt = $db->query("SELECT * FROM pret WHERE id_statut = 1"); // 1 = En attente de validation
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+    public static function getAllValidate() {
+        $db = getDB();
+        $stmt = $db->query("SELECT * FROM pret WHERE id_statut = 3"); // 1 = En attente de validation
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
 public static function validerPret($id) {
     $db = getDB();
  

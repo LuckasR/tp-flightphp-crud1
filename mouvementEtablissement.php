@@ -1,55 +1,80 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Gestion des mouvements d'établissement</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, select, button { margin: 5px; padding: 5px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    .error { color: red; }
-  </style>
-</head>
-<body>
+ <?php include('template_header.php'); ?>
 
-  <h1>Gestion des mouvements d'établissement</h1>
+  <h1 class="text-center text-primary my-4">Gestion des mouvements d'établissement</h1>
 
-  <div>
+<div class="container mb-4">
+  <form class="row g-3 align-items-end">
+
     <input type="hidden" id="id">
-    <select id="id_admin" required>
-      <option value="">Sélectionner un administrateur</option>
-    </select>
-    <select id="id_type" required>
-      <option value="">Sélectionner un type de mouvement</option>
-    </select>
-    <select id="id_client" required>
-      <option value="">Sélectionner un client</option>
-    </select>
-    <input type="number" id="montant" placeholder="Montant" step="0.01" required>
-    <input type="text" id="description" placeholder="Description">
-    <input type="text" id="reference_externe" placeholder="Référence externe">
-    <button onclick="ajouterOuModifier()">Ajouter / Modifier</button>
-    <div id="error-message" class="error"></div>
-  </div>
 
-  <table id="table-mouvements">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Administrateur</th>
-        <th>Type</th>
-        <th>Client</th>
-        <th>Montant</th>
-        <th>Description</th>
-        <th>Référence externe</th>
-        <th>Date mouvement</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <div class="col-md-4">
+      <label for="id_admin" class="form-label">Administrateur</label>
+      <select id="id_admin" class="form-select" required>
+        <option value="">Sélectionner un administrateur</option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="id_type" class="form-label">Type de mouvement</label>
+      <select id="id_type" class="form-select" required>
+        <option value="">Sélectionner un type</option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="id_client" class="form-label">Client</label>
+      <select id="id_client" class="form-select" required>
+        <option value="">Sélectionner un client</option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="montant" class="form-label">Montant</label>
+      <input type="number" id="montant" class="form-control" placeholder="Montant" step="0.01" required>
+    </div>
+
+    <div class="col-md-4">
+      <label for="description" class="form-label">Description</label>
+      <input type="text" id="description" class="form-control" placeholder="Description">
+    </div>
+
+    <div class="col-md-4">
+      <label for="reference_externe" class="form-label">Référence externe</label>
+      <input type="text" id="reference_externe" class="form-control" placeholder="Référence externe">
+    </div>
+
+    <div class="col-12 text-end">
+      <button type="button" class="btn btn-success" onclick="ajouterOuModifier()">Ajouter / Modifier</button>
+    </div>
+
+    <div class="col-12">
+      <div id="error-message" class="text-danger fw-bold"></div>
+    </div>
+
+  </form>
+</div>
+
+<div class="container mb-5">
+  <h4 class="mb-3">Liste des mouvements</h4>
+  <div class="table-responsive">
+    <table id="table-mouvements" class="table table-bordered table-striped text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Administrateur</th>
+          <th>Type</th>
+          <th>Client</th>
+          <th>Montant</th>
+          <th>Description</th>
+          <th>Référence externe</th>
+          <th>Date mouvement</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
 
   <script>
     const apiBase = "http://localhost/tp-flightphp-crud1/ws";
@@ -231,5 +256,5 @@
     chargerMouvements();
   </script>
 
-</body>
-</html>
+
+<?php include('template_footer.php'); ?>
