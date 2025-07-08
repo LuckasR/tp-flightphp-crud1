@@ -105,8 +105,8 @@ class EtablissementFinancier {
                         pret p
                         JOIN type_pret tp ON p.id_type_pret = tp.id
                     WHERE 
-                        p.id_statut = 5
-                        AND p.date_deblocage IS NOT NULL
+                         
+                         p.date_deblocage IS NOT NULL
                         AND p.date_derniere_echeance IS NOT NULL
                         AND p.date_deblocage <= ?
                         AND p.date_derniere_echeance >= ?

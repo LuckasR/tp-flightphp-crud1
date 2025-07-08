@@ -35,6 +35,9 @@
   <label for="date_valeur">Date de valeur</label>
   <input type="date" id="date_valeur">
 
+  <label for="delai_premier_remboursement">Délai avant premier remboursement (mois)</label>
+  <input type="number" id="delai_premier_remboursement" min="0" value="0">
+
   <button onclick="genererPlanRemboursement()">Générer Plan de Remboursement</button>
 </section>
 
@@ -67,12 +70,13 @@ function ajax(method, url, data, callback) {
   xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
   xhr.onreadystatechange = () => {
     if (xhr.readyState === 4) {
+      console.log("Réponse brute de l'API:", xhr.responseText);
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           callback(JSON.parse(xhr.responseText));
         } catch (e) {
           alert("Réponse JSON invalide");
-          console.error(e);
+          console.error("Erreur JSON:", e, "Réponse:", xhr.responseText);
         }
       } else {
         alert("Erreur : " + xhr.responseText);
@@ -84,10 +88,12 @@ function ajax(method, url, data, callback) {
 
 function remplirSelect(id, endpoint, labelKey = 'nom') {
   ajax("GET", `/${endpoint}`, null, data => {
+    console.log("Données reçues pour", endpoint, ":", data);
     const select = document.getElementById(id);
     select.innerHTML = `<option value="">-- Sélectionner --</option>`;
-    if (endpoint === "prets") {
-      data = data.filter(pret => pret.id_statut === 5); // Only approved loans
+    if (!data || data.length === 0) {
+      alert(`Aucune donnée disponible pour ${endpoint}`);
+      return;
     }
     data.forEach(e => {
       const opt = document.createElement("option");
@@ -132,12 +138,12 @@ function genererPlanRemboursement() {
   const id_pret = document.getElementById("id_pret").value;
   const id_admin = document.getElementById("id_admin").value;
   const date_valeur = document.getElementById("date_valeur").value;
+  const delai_premier_remboursement = parseInt(document.getElementById("delai_premier_remboursement").value) || 0;
 
   if (!id_pret || !id_admin || !date_valeur) {
     alert("Veuillez remplir tous les champs obligatoires (Prêt, Administrateur, Date de valeur).");
     return;
   }
-
   ajax("GET", `/prets/${id_pret}`, null, pret => {
     const montant_restant = pret.montant_restant != null ? Number(pret.montant_restant) : 
                            (pret.montant_total != null ? Number(pret.montant_total) : 
@@ -163,7 +169,8 @@ function genererPlanRemboursement() {
       tbody.innerHTML = "";
 
       let dateEcheance = new Date(pret.date_premiere_echeance || date_valeur);
-      dateEcheance.setMonth(dateEcheance.getMonth() + moisPayes);
+      // Appliquer le délai avant le premier remboursement
+      dateEcheance.setMonth(dateEcheance.getMonth() + moisPayes + delai_premier_remboursement);
 
       for (let i = 1; i <= dureeMois; i++) {
         const interet = capitalRestant * (tauxAnnuel / 100 / 12);
@@ -206,8 +213,10 @@ function enregistrerPaiement(id_pret, id_admin, montant_paye, date_valeur) {
 }
 
 // Chargement initial des selects
-remplirSelect("id_pret", "prets");
-remplirSelect("id_admin", "admins");
+document.addEventListener("DOMContentLoaded", () => {
+  remplirSelect("id_pret", "prets");
+  remplirSelect("id_admin", "admins");
+});
 </script>
 
 </body>
