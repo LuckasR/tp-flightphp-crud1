@@ -199,3 +199,21 @@ WHERE
     AND p.date_derniere_echeance IS NOT NULL and
     (p.date_deblocage IS NOT NULL  AND p.date_deblocage <= '2025-07-01')  
     AND (p.date_derniere_echeance IS NOT NULL AND p.date_derniere_echeance >= '2026-07-30') ; 
+
+
+
+create table pret_simulation (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    numero_simulation VARCHAR(100) UNIQUE,
+    id_client INT,
+    id_type_pret INT,
+    montant_demande DECIMAL(15,2),
+    duree_demandee INT,
+    taux_interet DECIMAL(5,2),
+    taux_assurance DECIMAL(5,2),
+    date_simulation DATE DEFAULT CURRENT_DATE,
+    mensualite DECIMAL(15,2),
+    mensualite_totale DECIMAL(15,2),
+    total_remboursement DECIMAL(15,2),
+    is_comparaison BOOLEAN DEFAULT false
+);
