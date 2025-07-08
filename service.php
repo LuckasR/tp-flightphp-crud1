@@ -10,6 +10,8 @@
         <li><a href="mouvementEtablissement.php">Gestion mouvement etablissement</a></li>
         <li><a href="main.php">Gestion etablissement</a></li>
         <li><a href="main.php">Gestion Paiement</a></li>
+        <li><a href="assurence.php">Gestion Payment_Assurence</a></li>
+
 
 
       
