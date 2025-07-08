@@ -101,7 +101,7 @@ CREATE TABLE type_pret (
     duree_min INT NOT NULL,
     duree_max INT NOT NULL,
     taux_interet DECIMAL(5,2) NOT NULL,
-    taux_assurance int default  , 
+    taux_assur  ance int default  , 
     taux_interet_retard DECIMAL(5,2) DEFAULT 2.0,
     frais_dossier_fixe DECIMAL(15,2) DEFAULT 0,
     documents_requis TEXT,
