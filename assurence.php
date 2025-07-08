@@ -85,27 +85,27 @@ function ajax(method, url, data, callback) {
 
 function remplirSelect(id, endpoint, labelKey = 'nom') {
   ajax("GET", `/${endpoint}`, null, data => {
+    console.log("Données reçues pour", endpoint, ":", data);
     const select = document.getElementById(id);
     select.innerHTML = `<option value="">-- Sélectionner --</option>`;
-    if (endpoint === "prets") {
-      data = data.filter(pret => pret.id_statut === 5); // Actif
+    if (!data || data.length === 0) {
+      alert(`Aucune donnée disponible pour ${endpoint}`);
+      return;
     }
     data.forEach(e => {
       const opt = document.createElement("option");
       opt.value = e.id;
-      opt.textContent = endpoint === "prets"
-        ? `${e.numero_pret} - ${Number(e.montant_accorde).toFixed(2)} Ar`
-        : (e[labelKey] || e.nom || e.id);
+      opt.textContent = endpoint === "prets" ? `${e.numero_pret} - ${Number(e.montant_accorde).toFixed(2)} Ar` : (e[labelKey] || e.nom || e.id);
       select.appendChild(opt);
     });
   });
 }
 
+
 function chargerDetailsPret() {
   const id_pret = document.getElementById("id_pret").value;
   const detailsDiv = document.getElementById("details-pret");
   if (!id_pret) {
-    detailsDiv.style.display = "none";
     detailsDiv.innerHTML = "";
     return;
   }
@@ -118,14 +118,14 @@ function chargerDetailsPret() {
       <p><strong>Montant accordé :</strong> ${Number(pret.montant_accorde).toFixed(2)} Ar</p>
       <p><strong>Taux d'intérêt annuel :</strong> ${pret.taux_applique || 0} %</p>
       <p><strong>Durée (mois) :</strong> ${pret.duree_accordee}</p>
-      <p><strong>Frais d’assurance (% annuel) :</strong> ${pret.frais_assurance || 0} %</p>
       <p><strong>Montant remboursé :</strong> ${Number(pret.montant_rembourse || 0).toFixed(2)} Ar</p>
       <p><strong>Montant restant :</strong> ${montant_restant.toFixed(2)} Ar</p>
       <p><strong>Date première échéance :</strong> ${pret.date_premiere_echeance || 'N/A'}</p>
     `;
-    detailsDiv.style.display = "block";
+    document.getElementById("form-section").style.display = "block";
   });
 }
+
 
 function calculerAnnuite(montant, tauxAnnuel, dureeMois) {
   const tauxMensuel = tauxAnnuel / 100 / 12;
