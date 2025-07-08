@@ -217,3 +217,35 @@ create table pret_simulation (
     total_remboursement DECIMAL(15,2),
     is_comparaison BOOLEAN DEFAULT false
 );
+
+
+
+CREATE TABLE simulations_pret (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    numero_simulation VARCHAR(50) UNIQUE NOT NULL,
+    id_client INT NOT NULL,
+    id_type_pret INT NOT NULL,
+    montant_demande DECIMAL(15,2) NOT NULL,
+    duree_demandee INT NOT NULL,
+    taux_applique DECIMAL(5,2) NOT NULL,
+    taux_assurance DECIMAL(5,2) NOT NULL,
+    mensualite_capital DECIMAL(15,2) NOT NULL,
+    mensualite_assurance DECIMAL(15,2) NOT NULL,
+    mensualite_totale DECIMAL(15,2) NOT NULL,
+    montant_total_assurance DECIMAL(15,2) NOT NULL,
+    montant_total_pret DECIMAL(15,2) NOT NULL,
+    frais_dossier DECIMAL(15,2) NOT NULL,
+    date_simulation DATETIME DEFAULT CURRENT_TIMESTAMP,
+    statut ENUM('active', 'convertie', 'expiree') DEFAULT 'active',
+    notes TEXT,
+    date_expiration DATE,
+    FOREIGN KEY (id_client) REFERENCES client(id),
+    FOREIGN KEY (id_type_pret) REFERENCES type_pret(id),
+    INDEX idx_client_simulation (id_client),
+    INDEX idx_date_simulation (date_simulation),
+    INDEX idx_statut (statut)
+);
+
+create table numero_pret_seq (
+    id INT PRIMARY KEY AUTO_INCREMENT
+) ; 
